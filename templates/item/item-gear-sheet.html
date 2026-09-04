@@ -1,0 +1,23 @@
+<form class="{{cssClass}}" autocomplete="off">
+  <header class="sheet-header">
+    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
+    <input class="item-name" type="text" name="name" value="{{item.name}}"/>
+  </header>
+
+  <div class="form-group">
+    <label>{{localize "DNK.Quantity"}}</label>
+    <input type="number" name="system.quantity" value="{{system.quantity}}" min="0" data-dtype="Number"/>
+  </div>
+
+  <div class="form-group">
+    <label data-tooltip="Once per relevant roll, a Purr-ecious item lets you reroll one die you didn't like.">
+      <input type="checkbox" name="system.purrecious" {{#if system.purrecious}}checked{{/if}}/>
+      {{localize "DNK.Purrecious"}}
+    </label>
+  </div>
+
+  <div class="form-group stacked">
+    <label>{{localize "DNK.Description"}}</label>
+    <textarea name="system.description" rows="8">{{system.description}}</textarea>
+  </div>
+</form>

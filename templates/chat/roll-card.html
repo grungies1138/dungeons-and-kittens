@@ -1,0 +1,39 @@
+<div class="dnk-chat-card">
+  <header class="dnk-chat-header">
+    <strong>{{actorName}}</strong>
+    {{#if flavor}}<span class="flavor">{{flavor}}</span>{{/if}}
+    <span class="ability">{{abilityLabel}} ({{abilityValue}})</span>
+  </header>
+
+  <div class="dnk-dice-row">
+    {{#each results}}
+      <span class="die {{#if (lte this ../abilityValue)}}success{{else}}fail{{/if}}">{{this}}</span>
+    {{/each}}
+  </div>
+
+  {{#if triple}}
+    <div class="dnk-triple">🐾 {{localize "DNK.Triple"}} <span class="hint">{{localize "DNK.TripleHint"}}</span></div>
+  {{/if}}
+
+  <div class="dnk-result">
+    <span class="successes">{{successes}} {{localize "DNK.Successes"}}</span>
+    {{#if difficultyLabel}}
+      <span class="difficulty">{{difficultyLabel}}</span>
+      {{#if passed}}
+        <span class="outcome pass">{{localize "DNK.PassedDifficulty"}}</span>
+      {{else}}
+        <span class="outcome fail">{{localize "DNK.FailedDifficulty"}}</span>
+      {{/if}}
+    {{/if}}
+  </div>
+
+  <div class="dnk-chat-actions">
+    {{#if canSpendFurrendship}}
+      <button class="dnk-spend-furrendship" type="button">{{localize "DNK.SpendFurrendship"}}</button>
+    {{/if}}
+    {{#if canReroll}}
+      <button class="dnk-reroll" type="button">{{localize "DNK.UseItemReroll"}}</button>
+    {{/if}}
+    <button class="dnk-apply-damage" type="button" data-amount="{{successes}}">{{localize "DNK.ApplyDamage"}} ({{successes}})</button>
+  </div>
+</div>

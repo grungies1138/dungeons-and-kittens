@@ -1,0 +1,73 @@
+<form class="{{cssClass}}" autocomplete="off">
+
+  <header class="sheet-header-card">
+    <div class="header-portrait">
+      <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}"/>
+    </div>
+    <div class="header-fields">
+      <div class="name-plate">
+        <input class="kitten-name" type="text" name="name" value="{{actor.name}}" placeholder="Extra name"/>
+      </div>
+      <div class="detail-grid">
+        <label>{{localize "DNK.Role"}}</label>
+        <input type="text" name="system.details.role" value="{{system.details.role}}"/>
+      </div>
+    </div>
+  </header>
+
+  <section class="stat-row">
+    <div class="stat-badge" data-stat="strong">
+      <div class="badge-shape">
+        <i class="fas fa-paw badge-icon"></i>
+        <input type="number" name="system.abilities.strong.value" value="{{system.abilities.strong.value}}" data-dtype="Number"/>
+      </div>
+      <label data-tooltip="{{localize 'DNK.AbilityStrongTooltip'}}">{{localize "DNK.AbilityStrong"}}</label>
+      <button type="button" class="ability-roll" data-ability="strong" title="{{localize 'DNK.Roll'}}"><i class="fas fa-dice-d6"></i></button>
+    </div>
+
+    <div class="stat-badge" data-stat="smart">
+      <div class="badge-shape">
+        <i class="fas fa-paw badge-icon"></i>
+        <input type="number" name="system.abilities.smart.value" value="{{system.abilities.smart.value}}" data-dtype="Number"/>
+      </div>
+      <label data-tooltip="{{localize 'DNK.AbilitySmartTooltip'}}">{{localize "DNK.AbilitySmart"}}</label>
+      <button type="button" class="ability-roll" data-ability="smart" title="{{localize 'DNK.Roll'}}"><i class="fas fa-dice-d6"></i></button>
+    </div>
+
+    <div class="stat-badge" data-stat="cute">
+      <div class="badge-shape">
+        <i class="fas fa-paw badge-icon"></i>
+        <input type="number" name="system.abilities.cute.value" value="{{system.abilities.cute.value}}" data-dtype="Number"/>
+      </div>
+      <label data-tooltip="{{localize 'DNK.AbilityCuteTooltip'}}">{{localize "DNK.AbilityCute"}}</label>
+      <button type="button" class="ability-roll" data-ability="cute" title="{{localize 'DNK.Roll'}}"><i class="fas fa-dice-d6"></i></button>
+    </div>
+
+    <div class="stat-badge" data-stat="heart">
+      <div class="badge-shape">
+        <i class="fas fa-heart badge-icon"></i>
+        <input type="number" name="system.resources.heart.value" value="{{system.resources.heart.value}}" data-dtype="Number"/>
+      </div>
+      <span class="max">/ {{system.resources.heart.max}}</span>
+      <label data-tooltip="{{localize 'DNK.HeartTooltip'}}">{{localize "DNK.Heart"}}</label>
+      <div class="resource-buttons">
+        <button type="button" class="resource-adjust" data-resource="heart" data-delta="-1">-</button>
+        <button type="button" class="resource-adjust" data-resource="heart" data-delta="1">+</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="parchment-panel combat-actions">
+    <div class="combat-grid">
+      <button type="button" class="combat-action" data-action="fangAttack">{{localize "DNK.FangAttack"}}</button>
+      <button type="button" class="combat-action" data-action="clawAttack">{{localize "DNK.ClawAttack"}}</button>
+      <button type="button" class="combat-action" data-action="defend">{{localize "DNK.Defend"}}</button>
+      <button type="button" class="combat-action" data-action="hinder">{{localize "DNK.Hinder"}}</button>
+    </div>
+  </section>
+
+  <section class="parchment-panel">
+    <label>{{localize "DNK.Notes"}}</label>
+    <textarea name="system.details.notes" rows="10">{{system.details.notes}}</textarea>
+  </section>
+</form>

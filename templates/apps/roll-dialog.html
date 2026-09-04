@@ -1,0 +1,21 @@
+<form class="dnk-roll-dialog">
+  <p class="hint">{{flavorHint}}</p>
+  <div class="form-group">
+    <label>{{localize "DNK.Advantage"}}</label>
+    <input type="number" name="advantage" value="{{advantage}}" min="0" step="1"/>
+  </div>
+  <div class="form-group">
+    <label>{{localize "DNK.Disadvantage"}}</label>
+    <input type="number" name="disadvantage" value="{{disadvantage}}" min="0" step="1"/>
+  </div>
+  <div class="form-group">
+    <label>{{localize "DNK.Difficulty"}}</label>
+    <select name="difficulty">
+      <option value="0" {{#if (eq difficulty 0)}}selected{{/if}}>{{localize "DNK.DifficultyNone"}}</option>
+      <option value="1" {{#if (eq difficulty 1)}}selected{{/if}}>{{localize "DNK.DifficultyEasy"}}</option>
+      <option value="2" {{#if (eq difficulty 2)}}selected{{/if}}>{{localize "DNK.DifficultyMedium"}}</option>
+      <option value="3" {{#if (eq difficulty 3)}}selected{{/if}}>{{localize "DNK.DifficultyDifficult"}}</option>
+      <option value="4" {{#if (eq difficulty 4)}}selected{{/if}}>{{localize "DNK.DifficultyLegendary"}}</option>
+    </select>
+  </div>
+</form>

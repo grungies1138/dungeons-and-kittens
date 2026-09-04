@@ -1,0 +1,527 @@
+@font-face {
+  font-family: "DNK Hand";
+  src: url("systems/dungeons-and-kittens/fonts/PatrickHand-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DNK Body";
+  src: url("systems/dungeons-and-kittens/fonts/Quicksand-Variable.woff2") format("woff2-variations");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+.dnk.sheet {
+  --dnk-cream: #f8f0da;
+  --dnk-cream-dark: #efe3c4;
+  --dnk-brown: #5c3a22;
+  --dnk-brown-light: #a9765a;
+  --dnk-orange: #e08a3c;
+  --dnk-red: #c0553c;
+  --dnk-success: #4c7a3d;
+  --dnk-fail: #b23a3a;
+
+  --strong-color: #c0554a;
+  --strong-color-light: #f2cfc7;
+  --smart-color: #3f6fa6;
+  --smart-color-light: #cadcee;
+  --cute-color: #5f8f4e;
+  --cute-color-light: #d3e6c8;
+  --heart-color: #c9527a;
+  --heart-color-light: #f4d2df;
+  --furr-color: #d9a233;
+  --furr-color-light: #f4e2b3;
+
+  font-family: "DNK Body", "Quicksand", "Segoe UI", sans-serif;
+  background: var(--dnk-cream);
+  color: var(--dnk-brown);
+  background-image:
+    radial-gradient(var(--dnk-cream-dark) 1px, transparent 1.5px);
+  background-size: 14px 14px;
+  border: 6px double var(--dnk-brown-light);
+  border-radius: 10px;
+  padding: 4px;
+}
+
+.dnk.sheet .window-content { background: transparent; }
+
+.dnk.sheet input, .dnk.sheet select, .dnk.sheet textarea {
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid var(--dnk-brown-light);
+  border-radius: 4px;
+  color: var(--dnk-brown);
+  font-family: "DNK Body", "Quicksand", "Segoe UI", sans-serif;
+}
+
+.dnk.sheet button {
+  background: var(--dnk-orange);
+  border: 1px solid var(--dnk-brown);
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+  padding: 2px 8px;
+  font-family: "DNK Body", "Quicksand", "Segoe UI", sans-serif;
+  font-weight: 600;
+}
+
+.dnk.sheet button:hover { background: var(--dnk-red); }
+
+.dnk.sheet h1, .dnk.sheet h2, .dnk.sheet h3,
+.dnk.sheet .kitten-name, .dnk.sheet .item-name,
+.dnk.sheet .stat-badge label, .dnk.sheet .sheet-tabs .item {
+  font-family: "DNK Hand", "Segoe Print", "Comic Sans MS", cursive;
+}
+
+/* ---------- Header card ---------- */
+
+.dnk .sheet-header-card {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+  background: rgba(255, 255, 255, 0.45);
+  border: 2px solid var(--dnk-brown-light);
+  border-radius: 12px;
+  padding: 10px;
+  margin-bottom: 8px;
+}
+
+.dnk .header-portrait {
+  flex: 0 0 auto;
+}
+
+.dnk .header-portrait .profile-img {
+  width: 96px;
+  height: 96px;
+  border: 3px solid var(--dnk-brown);
+  border-radius: 50%;
+  object-fit: cover;
+  background: #fff;
+  box-shadow: 0 0 0 3px var(--dnk-cream), 0 0 0 5px var(--dnk-brown-light);
+}
+
+.dnk .header-fields { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+
+.dnk .name-plate {
+  border-bottom: 2px solid var(--dnk-brown-light);
+  padding-bottom: 2px;
+}
+
+.dnk .kitten-name {
+  font-size: 1.9rem;
+  line-height: 1.1;
+  font-weight: normal;
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--dnk-brown);
+}
+
+.dnk .detail-grid {
+  display: grid;
+  grid-template-columns: auto 1fr auto 1fr;
+  gap: 4px 8px;
+  align-items: center;
+  font-size: 0.82rem;
+}
+
+.dnk .detail-grid label {
+  font-weight: bold;
+  color: var(--dnk-brown-light);
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  letter-spacing: 0.03em;
+}
+
+/* ---------- Stat badges (paws & heart) ---------- */
+
+.dnk .stat-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  padding: 10px 6px;
+  background: rgba(255, 255, 255, 0.3);
+  border: 2px dashed var(--dnk-brown-light);
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+
+.dnk .stat-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 76px;
+}
+
+.dnk .stat-badge label {
+  font-weight: bold;
+  font-size: 1rem;
+  color: var(--dnk-brown);
+}
+
+.dnk .badge-shape {
+  position: relative;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid var(--dnk-brown);
+  background: #f1e6c8;
+}
+
+.dnk .badge-shape .badge-icon {
+  position: absolute;
+  font-size: 2rem;
+  opacity: 0.4;
+}
+
+.dnk .badge-shape input {
+  position: relative;
+  z-index: 1;
+  width: 30px;
+  background: transparent;
+  border: none;
+  text-align: center;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--dnk-brown);
+  font-family: "DNK Hand", "Segoe Print", cursive;
+}
+
+.dnk .stat-badge[data-stat="strong"] .badge-shape { background: var(--strong-color-light); border-color: var(--strong-color); }
+.dnk .stat-badge[data-stat="strong"] .badge-icon { color: var(--strong-color); }
+
+.dnk .stat-badge[data-stat="smart"] .badge-shape { background: var(--smart-color-light); border-color: var(--smart-color); }
+.dnk .stat-badge[data-stat="smart"] .badge-icon { color: var(--smart-color); }
+
+.dnk .stat-badge[data-stat="cute"] .badge-shape { background: var(--cute-color-light); border-color: var(--cute-color); }
+.dnk .stat-badge[data-stat="cute"] .badge-icon { color: var(--cute-color); }
+
+.dnk .stat-badge[data-stat="heart"] .badge-shape { background: var(--heart-color-light); border-color: var(--heart-color); }
+.dnk .stat-badge[data-stat="heart"] .badge-icon { color: var(--heart-color); }
+
+.dnk .stat-badge[data-stat="furrendship"] .badge-shape { background: var(--furr-color-light); border-color: var(--furr-color); }
+.dnk .stat-badge[data-stat="furrendship"] .badge-icon { color: var(--furr-color); }
+
+.dnk .stat-badge .max { font-size: 0.75rem; color: var(--dnk-brown-light); }
+
+.dnk .stat-badge .ability-roll {
+  padding: 1px 6px;
+  font-size: 0.75rem;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dnk .resource-buttons { display: flex; gap: 3px; }
+.dnk .resource-buttons button {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  line-height: 1;
+  font-size: 0.85rem;
+  border-radius: 50%;
+}
+
+.dnk .xp-plate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 90px;
+  border: 2px solid var(--dnk-brown-light);
+  border-radius: 8px;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.dnk .xp-plate label {
+  font-weight: bold;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: var(--dnk-brown-light);
+}
+
+.dnk .xp-plate .resource-controls { display: flex; align-items: center; gap: 3px; }
+.dnk .xp-plate .xp { width: 34px; text-align: center; }
+
+/* ---------- Tabs ---------- */
+
+.dnk .sheet-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 3px solid var(--dnk-brown-light);
+  margin-bottom: 6px;
+}
+
+.dnk .sheet-tabs .item {
+  padding: 4px 12px;
+  border-radius: 8px 8px 0 0;
+  background: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  font-size: 1.1rem;
+  border: 1px solid transparent;
+}
+
+.dnk .sheet-tabs .item.active {
+  background: var(--dnk-orange);
+  color: #fff;
+  border-color: var(--dnk-brown);
+}
+
+.dnk .sheet-body { overflow-y: auto; }
+
+.dnk .sheet-body .tab { display: none; }
+.dnk .sheet-body .tab.active { display: block; }
+
+/* Shared panel look: a soft parchment card */
+.dnk .parchment-panel {
+  background: rgba(255, 255, 255, 0.4);
+  border: 2px solid var(--dnk-brown-light);
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+
+/* ---------- Skills (circle bullets like the paper sheet) ---------- */
+
+.dnk .skills-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px 16px;
+}
+
+.dnk .skill-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+}
+
+.dnk .skill-row input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--dnk-brown);
+  background: rgba(255, 255, 255, 0.7);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.dnk .skill-row input[type="checkbox"]:checked::before,
+.dnk .skill-row input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  width: 13px;
+  height: 2px;
+  background: var(--dnk-brown);
+  border-radius: 1px;
+  top: 50%;
+  left: 50%;
+}
+
+.dnk .skill-row input[type="checkbox"]:checked::before {
+  transform: translate(-50%, -50%) rotate(41deg);
+}
+
+.dnk .skill-row input[type="checkbox"]:checked::after {
+  transform: translate(-50%, -50%) rotate(-41deg);
+}
+
+/* ---------- Spellbook: ruled notebook page ---------- */
+
+.dnk .notebook-panel {
+  background-color: #fffdf5;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 25px,
+    var(--smart-color-light) 26px
+  );
+  border: 2px solid var(--dnk-brown-light);
+  border-left: 8px solid var(--strong-color-light);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+/* ---------- Backpack: soft pouch look ---------- */
+
+.dnk .pouch-panel {
+  background: linear-gradient(180deg, #fdf6e3, #f3e6c8);
+  border: 2px dashed var(--dnk-brown-light);
+  border-radius: 14px;
+  padding: 8px 10px;
+}
+
+.dnk .item-list { list-style: none; margin: 0; padding: 0; }
+
+.dnk .item-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 4px;
+  border-bottom: 1px solid rgba(92, 58, 34, 0.2);
+}
+
+.dnk .item-row .item-name { flex: 1; font-weight: bold; }
+.dnk .item-row .item-detail { font-size: 0.8rem; color: var(--dnk-brown-light); }
+.dnk .item-row .item-controls a { margin-left: 6px; cursor: pointer; }
+
+/* ---------- Combat ---------- */
+
+.dnk .combat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.dnk .hint {
+  font-size: 0.8rem;
+  color: var(--dnk-brown-light);
+  font-style: italic;
+}
+
+.dnk .form-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.dnk .form-group.stacked { flex-direction: column; align-items: stretch; }
+
+/* ---------- Item sheets ---------- */
+
+.dnk.sheet.item .sheet-header {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  border-bottom: 2px solid var(--dnk-brown-light);
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+
+.dnk.sheet.item .profile-img {
+  width: 56px;
+  height: 56px;
+  border: 2px solid var(--dnk-brown);
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.dnk.sheet.item .item-name {
+  font-size: 1.4rem;
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid var(--dnk-brown-light);
+}
+
+/* ---------- Chat card ---------- */
+
+.dnk-chat-card {
+  background: #f8f0da;
+  border: 3px double #5c3a22;
+  border-radius: 10px;
+  padding: 8px;
+  color: #5c3a22;
+  font-family: "DNK Body", "Quicksand", "Segoe UI", sans-serif;
+}
+
+.dnk-chat-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 0.95rem;
+  font-family: "DNK Hand", "Segoe Print", cursive;
+  border-bottom: 1px solid #a9765a;
+  padding-bottom: 4px;
+  margin-bottom: 4px;
+}
+
+.dnk-chat-header .flavor { font-style: italic; }
+
+.dnk-dice-row {
+  display: flex;
+  gap: 4px;
+  margin: 6px 0;
+  flex-wrap: wrap;
+}
+
+.dnk-dice-row .die {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  font-weight: bold;
+  border: 1px solid #5c3a22;
+}
+
+.dnk-dice-row .die.success { background: #d3e6c8; }
+.dnk-dice-row .die.fail { background: #f2cfc7; }
+
+.dnk-triple {
+  background: #f4e2b3;
+  border-radius: 6px;
+  padding: 3px 6px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.dnk-triple .hint { font-weight: normal; font-style: italic; font-size: 0.8rem; }
+
+.dnk-result {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+
+.dnk-result .outcome.pass { color: #4c7a3d; }
+.dnk-result .outcome.fail { color: #b23a3a; }
+
+.dnk-chat-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.dnk-chat-actions button {
+  background: #e08a3c;
+  border: 1px solid #5c3a22;
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 2px 6px;
+  font-family: "DNK Body", "Quicksand", "Segoe UI", sans-serif;
+}
+
+.dnk-chat-actions button:hover { background: #c0553c; }
+
+/* ---------- Roll dialog ---------- */
+
+.dnk-roll-dialog .form-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}

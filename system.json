@@ -1,0 +1,30 @@
+{
+  "id": "dungeons-and-kittens",
+  "title": "Dungeons & Kittens",
+  "description": "An unofficial Foundry VTT system for Dungeons & Kittens, the cooperative animal-fantasy roll-under 3d6 adventure game originally published by EDGE Studio / Deadcrows Studio. Fan-made; not affiliated with or endorsed by Asmodee, EDGE Studio, or Deadcrows Studio.",
+  "version": "1.0.0",
+  "compatibility": {
+    "minimum": "11",
+    "verified": "14.367",
+    "maximum": "14"
+  },
+  "authors": [
+    { "name": "Community" }
+  ],
+  "esmodules": ["scripts/dnk.mjs"],
+  "styles": ["styles/dnk.css"],
+  "languages": [
+    { "lang": "en", "name": "English", "path": "lang/en.json" }
+  ],
+  "grid": {
+    "distance": 5,
+    "units": "ft"
+  },
+  "primaryTokenAttribute": "resources.heart",
+  "secondaryTokenAttribute": "resources.furrendship",
+  "url": "https://github.com/grungies1138/dungeons-and-kittens",
+  "manifest": "https://github.com/grungies1138/dungeons-and-kittens/releases/latest/download/system.json",
+  "download": "https://github.com/grungies1138/dungeons-and-kittens/releases/download/v1.0.0/dungeons-and-kittens.zip",
+  "readme": "README.md",
+  "license": "LICENSE.txt"
+}

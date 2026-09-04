@@ -1,0 +1,90 @@
+# Dungeons & Kittens (unofficial Foundry VTT system)
+
+A fan-made Foundry Virtual Tabletop system implementing the rules of **Dungeons & Kittens**,
+the cooperative animal-fantasy roleplaying game written by Trickytophe / François Cedelle
+(Studio Deadcrows) and published by EDGE Studio (Asmodee Group). This project is **not**
+affiliated with or endorsed by Asmodee, EDGE Studio, or Deadcrows Studio, and contains no
+artwork or text reproduced from their books — only an original implementation of the
+publicly documented game mechanics (the free "Game Mechanics Quick Reference" and Quickstart
+Adventure PDFs from edge-studio.net).
+
+If you enjoy the game, please support the creators by buying the **Dungeons & Kittens Starter
+Set** and **Core Rulebook**.
+
+## Mechanics implemented
+
+- **Abilities**: Strong, Smart, Cute. Roll 3d6, each die ≤ the ability's score is a success.
+- **Advantage / Disadvantage**: roll 4d6 or 2d6 instead of 3d6 (net sources only; ties cancel
+  back to 3d6).
+- **Triples**: any test where 3+ dice show the same value gets a narrative bonus, win or lose.
+- **Difficulty**: Easy (1 success), Medium (2), Difficult (3), Legendary (4).
+- **Heart**: a Kitten's health/confidence, max = Strong + Smart. At 0 the Kitten is out of the
+  scene, never dead.
+- **Furr-endship**: morale currency, max = Cute. Spend 1 for an automatic success (max 4 per
+  test) or to hand a Heart point to a friend.
+- **Skills**: the 25 skills from the character sheet, toggled trained/untrained (skills grant
+  Advantage when relevant — call it as GM). Hover any skill, ability, resource, or backpack/
+  spellbook item on the sheet for a tooltip explaining what it does.
+- **Spellbook**: per-character "spells"/special abilities with an ability + success threshold,
+  rollable straight from the sheet.
+- **Backpack**: simple gear list, flagging "Purr-ecious" items that can reroll a failing die.
+- **Catfights**: quick-roll buttons for Fang Attack, Claw Attack, Defend, Help, Hinder, and Move,
+  plus a chat-card button to apply Heart damage to a targeted token.
+
+Skill descriptions are original interpretations written for this system (the publicly available
+PDFs list skill names only, not flavor text) — treat them as suggestions, not verbatim rulebook
+text, and use your own judgment or the Core Rulebook's wording at the table.
+
+## Installation
+
+Copy this folder into your Foundry `Data/systems/dungeons-and-kittens` directory (or install
+via manifest URL if you host `system.json` somewhere), then create a world using the
+"Dungeons & Kittens" system.
+
+## Actor types
+
+- **Kitten** — full player character sheet.
+- **Extra** — a lightweight NPC sheet for the Storyteller (abilities + Heart + basic catfight
+  actions).
+
+## Pregenerated Kittens
+
+The first time a GM loads a world using this system, it automatically creates and populates a
+world compendium called **"Dungeons & Kittens: Pregenerated Kittens"** with the five official
+ready-to-play characters from the Quickstart Adventure (Sparkle, Bobbin, Camilla Bellefleur,
+Dart, and Cheesy), stats/spells/gear included. Look for it in the Compendium sidebar tab under
+"World". If it doesn't appear, open the console (F12) and run:
+
+```js
+await game.dnk.ensurePregenCompendium();
+```
+
+You can also skip the compendium and drop the five pregens straight into your Actors directory
+with:
+
+```js
+await game.dnk.importPregens();
+```
+
+## Player's Guide compendium
+
+Alongside the pregens, the system also auto-creates a **"Dungeons & Kittens: Player's Guide"**
+journal compendium with two entries:
+
+- **How to Create a Kitten** — a 9-page step-by-step character creation tutorial (name &
+  childhood, abilities, Heart/Furr-endship, skills, character trait & cattribute, spellbook,
+  backpack), written for this Foundry sheet specifically.
+- **Playing the Game: Mechanics & Sheet Hints** — an 8-page reference covering the core roll,
+  advantage/disadvantage/difficulty, spending Furr-endship, trained skills, casting spells,
+  Purr-ecious items, catfights, and a one-page cheat sheet.
+- **Skill Reference** — all 25 skills with a full description of what each one covers.
+
+If it doesn't appear after loading a world, run:
+
+```js
+await game.dnk.ensureGuideCompendium();
+```
+
+Both the Pregenerated Kittens and Player's Guide compendia are version-tracked: if you update
+this system and the bundled data version changes, the next world load automatically deletes and
+rebuilds the compendium contents so you get the refreshed text without doing anything by hand.

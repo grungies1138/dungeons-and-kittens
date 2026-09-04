@@ -1,0 +1,78 @@
+{
+  "Actor": {
+    "types": ["kitten", "extra"],
+    "templates": {
+      "common": {
+        "abilities": {
+          "strong": { "value": 3, "label": "DNK.AbilityStrong" },
+          "smart": { "value": 3, "label": "DNK.AbilitySmart" },
+          "cute": { "value": 3, "label": "DNK.AbilityCute" }
+        },
+        "resources": {
+          "heart": { "value": 6, "max": 6 },
+          "furrendship": { "value": 3, "max": 3 }
+        },
+        "biography": ""
+      }
+    },
+    "kitten": {
+      "templates": ["common"],
+      "details": {
+        "player": "",
+        "childhood": "",
+        "characterTrait": { "name": "", "description": "" },
+        "cattribute": { "name": "", "description": "" }
+      },
+      "experience": { "current": 0, "total": 0 },
+      "skills": {
+        "careOfBeasts": { "trained": false },
+        "cook": { "trained": false },
+        "drawAndPaint": { "trained": false },
+        "findInformation": { "trained": false },
+        "findYourWay": { "trained": false },
+        "healWoundsAndDiseases": { "trained": false },
+        "herbology": { "trained": false },
+        "hideInShadows": { "trained": false },
+        "hissAndGrowl": { "trained": false },
+        "hunterGatherer": { "trained": false },
+        "keepCalmAndCarryOn": { "trained": false },
+        "knowledgeOfLawsAndLegends": { "trained": false },
+        "knowledgeOfPeopleAndPlaces": { "trained": false },
+        "makeMusic": { "trained": false },
+        "moveSilently": { "trained": false },
+        "pickpocket": { "trained": false },
+        "readSkyAndStars": { "trained": false },
+        "readWriteCount": { "trained": false },
+        "scratch": { "trained": false },
+        "seduceAndCharm": { "trained": false },
+        "seeAndSearch": { "trained": false },
+        "shakeYourBooty": { "trained": false },
+        "sweetTalk": { "trained": false },
+        "tinkerWithBitsAndBobs": { "trained": false },
+        "treatingBeasts": { "trained": false }
+      }
+    },
+    "extra": {
+      "templates": ["common"],
+      "details": {
+        "role": "",
+        "notes": ""
+      }
+    }
+  },
+  "Item": {
+    "types": ["spell", "gear"],
+    "templates": {},
+    "spell": {
+      "ability": "smart",
+      "successes": 1,
+      "description": "",
+      "recastCost": 1
+    },
+    "gear": {
+      "description": "",
+      "quantity": 1,
+      "purrecious": false
+    }
+  }
+}

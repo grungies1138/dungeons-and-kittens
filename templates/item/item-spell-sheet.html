@@ -1,0 +1,30 @@
+<form class="{{cssClass}}" autocomplete="off">
+  <header class="sheet-header">
+    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
+    <input class="item-name" type="text" name="name" value="{{item.name}}"/>
+  </header>
+
+  <div class="form-group">
+    <label>{{localize "DNK.Abilities"}}</label>
+    <select name="system.ability">
+      <option value="strong" {{#if (eq system.ability "strong")}}selected{{/if}}>{{localize "DNK.AbilityStrong"}}</option>
+      <option value="smart" {{#if (eq system.ability "smart")}}selected{{/if}}>{{localize "DNK.AbilitySmart"}}</option>
+      <option value="cute" {{#if (eq system.ability "cute")}}selected{{/if}}>{{localize "DNK.AbilityCute"}}</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label data-tooltip="How many successes this spell needs: Easy 1, Medium 2, Difficult 3, Legendary 4.">{{localize "DNK.SuccessesNeeded"}}</label>
+    <input type="number" name="system.successes" value="{{system.successes}}" min="1" max="4" data-dtype="Number"/>
+  </div>
+
+  <div class="form-group">
+    <label data-tooltip="Heart points to spend to recast this spell again before the next morning.">{{localize "DNK.RecastCost"}}</label>
+    <input type="number" name="system.recastCost" value="{{system.recastCost}}" min="0" data-dtype="Number"/>
+  </div>
+
+  <div class="form-group stacked">
+    <label>{{localize "DNK.Description"}}</label>
+    <textarea name="system.description" rows="8">{{system.description}}</textarea>
+  </div>
+</form>
