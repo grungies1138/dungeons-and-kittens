@@ -1,4 +1,14 @@
 {
+  "TYPES": {
+    "Actor": {
+      "kitten": "Kitten",
+      "extra": "Extra"
+    },
+    "Item": {
+      "spell": "Spellbook Entry",
+      "gear": "Backpack Item"
+    }
+  },
   "DNK": {
     "SheetKitten": "Kitten Sheet",
     "SheetExtra": "Extra (NPC) Sheet",
@@ -48,16 +58,17 @@
     "Disadvantage": "Disadvantage",
     "Difficulty": "Difficulty",
     "DifficultyNone": "None",
-    "DifficultyEasy": "Easy (1 success)",
-    "DifficultyMedium": "Medium (2 successes)",
-    "DifficultyDifficult": "Difficult (3 successes)",
-    "DifficultyLegendary": "Legendary (4 successes)",
+    "DifficultyEasy": "Easy (needs 1)",
+    "DifficultyMedium": "Medium (needs 2)",
+    "DifficultyDifficult": "Difficult (needs 3)",
+    "DifficultyLegendary": "Legendary (needs 4)",
     "Roll": "Roll",
 
     "Successes": "Successes",
     "Success": "Success",
     "Triple": "Triple!",
     "TripleHint": "A positive side effect happens, win or lose.",
+    "Result": "Result",
     "PassedDifficulty": "Succeeded",
     "FailedDifficulty": "Failed",
     "SpendFurrendship": "Spend 1 Furr-endship (+1 success)",

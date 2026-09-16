@@ -570,9 +570,23 @@
 
 .dnk-result {
   display: flex;
-  gap: 10px;
-  align-items: center;
+  flex-direction: column;
+  gap: 2px;
   margin-bottom: 6px;
+}
+
+.dnk-result .result-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.dnk-result .label {
+  opacity: 0.75;
+  font-size: 0.85rem;
+}
+
+.dnk-result .value {
   font-weight: bold;
 }
 
