@@ -1,5 +1,9 @@
 import { DnkActor } from "./documents/actor.mjs";
 import { DnkItem } from "./documents/item.mjs";
+import { DnkKittenData } from "./data/kitten-data.mjs";
+import { DnkExtraData } from "./data/extra-data.mjs";
+import { DnkSpellData } from "./data/spell-data.mjs";
+import { DnkGearData } from "./data/gear-data.mjs";
 import { DnkActorSheet } from "./sheets/actor-sheet.mjs";
 import { DnkItemSheet } from "./sheets/item-sheet.mjs";
 import { activateChatListeners, rollAbilityTest } from "./dice.mjs";
@@ -21,6 +25,11 @@ Hooks.once("init", async function () {
 
   CONFIG.Actor.documentClass = DnkActor;
   CONFIG.Item.documentClass = DnkItem;
+
+  CONFIG.Actor.dataModels.kitten = DnkKittenData;
+  CONFIG.Actor.dataModels.extra = DnkExtraData;
+  CONFIG.Item.dataModels.spell = DnkSpellData;
+  CONFIG.Item.dataModels.gear = DnkGearData;
 
   Actors.unregisterSheet("core", ActorSheet);
   Actors.registerSheet("dnk", DnkActorSheet, { types: ["kitten", "extra"], makeDefault: true, label: "DNK.SheetKitten" });

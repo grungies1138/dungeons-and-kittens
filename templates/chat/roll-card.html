@@ -19,14 +19,23 @@
   {{/if}}
 
   <div class="dnk-result">
-    <span class="successes">{{successes}} {{localize "DNK.Successes"}}</span>
+    <div class="result-row">
+      <span class="label">{{localize "DNK.Successes"}}</span>
+      <span class="value">{{successes}}</span>
+    </div>
     {{#if difficultyLabel}}
-      <span class="difficulty">{{difficultyLabel}}</span>
-      {{#if passed}}
-        <span class="outcome pass">{{localize "DNK.PassedDifficulty"}}</span>
-      {{else}}
-        <span class="outcome fail">{{localize "DNK.FailedDifficulty"}}</span>
-      {{/if}}
+      <div class="result-row">
+        <span class="label">{{localize "DNK.Difficulty"}}</span>
+        <span class="value">{{difficultyLabel}}</span>
+      </div>
+      <div class="result-row">
+        <span class="label">{{localize "DNK.Result"}}</span>
+        {{#if passed}}
+          <span class="value outcome pass">{{localize "DNK.PassedDifficulty"}}</span>
+        {{else}}
+          <span class="value outcome fail">{{localize "DNK.FailedDifficulty"}}</span>
+        {{/if}}
+      </div>
     {{/if}}
   </div>
 
