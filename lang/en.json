@@ -65,6 +65,7 @@
     "NoFurrendship": "No Furr-endship points left.",
     "NoFailingDie": "No failing die left to reroll.",
     "MaxFurrendshipReached": "You cannot gain more than 4 successes from Furr-endship on a single test.",
+    "InvalidRollMessage": "That roll could not be found.",
 
     "FangAttack": "Fang Attack",
     "ClawAttack": "Claw Attack",
@@ -79,6 +80,11 @@
     "AddGear": "Add Item",
     "Edit": "Edit",
     "Delete": "Delete",
+    "Cancel": "Cancel",
+
+    "CropImage": "Crop Portrait",
+    "CropAndSave": "Crop & Save",
+    "CropHint": "Drag the box to move it, drag the corner handle to resize. The area inside the box becomes the portrait.",
 
     "Skill": {
       "careOfBeasts": "Care of Beasts",

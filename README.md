@@ -88,3 +88,31 @@ await game.dnk.ensureGuideCompendium();
 Both the Pregenerated Kittens and Player's Guide compendia are version-tracked: if you update
 this system and the bundled data version changes, the next world load automatically deletes and
 rebuilds the compendium contents so you get the refreshed text without doing anything by hand.
+
+## Companion API (for external tools, e.g. a mobile character-sheet app)
+
+Alongside the pregens and Player's Guide, the system auto-creates a world macro compendium called
+**"Dungeons & Kittens: Companion API"**. These are thin script macros that call straight into the
+same functions the character sheet's own buttons use (`game.dnk.api`), so an external tool that
+can execute a Foundry macro with a `scope` object — such as a REST API/relay module — can drive
+rolls and resource changes identically to using the sheet in Foundry, without reimplementing any
+game rules.
+
+Macros (each takes its arguments via the `scope` object passed to `Macro#execute(scope)`):
+
+| Macro | `scope` fields |
+| --- | --- |
+| DNK API: Roll Ability Test | `actorId`, `ability`, `flavor?`, `advantage?`, `disadvantage?`, `difficulty?` |
+| DNK API: Roll Combat Action | `actorId`, `presetKey` (`fangAttack`/`clawAttack`/`defend`/`help`/`hinder`/`move`), `advantage?`, `disadvantage?`, `difficulty?` |
+| DNK API: Roll Spell | `actorId`, `itemId`, `advantage?`, `disadvantage?` |
+| DNK API: Adjust Resource | `actorId`, `resource` (`heart`/`furrendship`), `delta` (negative to damage/spend) |
+| DNK API: Spend Furrendship | `messageId` (of a roll's chat card) |
+| DNK API: Reroll | `messageId` (of a roll's chat card) |
+
+All of them return a plain-object result (or throw a localized `Error` on failure) rather than
+depending on chat/DOM, so a relay can pass the return value straight back to the calling app. If
+the compendium doesn't appear after loading a world, run:
+
+```js
+await game.dnk.ensureCompanionApiCompendium();
+```

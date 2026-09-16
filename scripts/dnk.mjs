@@ -7,13 +7,16 @@ import { openRollDialog } from "./apps/roll-dialog.mjs";
 import { SKILLS } from "./skills.mjs";
 import { importPregens, ensurePregenCompendium } from "./pregens.mjs";
 import { ensureGuideCompendium } from "./journals.mjs";
+import { ensureCompanionApiCompendium } from "./macros.mjs";
+import * as api from "./api.mjs";
 
 Hooks.once("init", async function () {
   console.log("Dungeons & Kittens | Initializing system");
 
   game.dnk = {
     DnkActor, DnkItem, rollAbilityTest, openRollDialog, SKILLS,
-    importPregens, ensurePregenCompendium, ensureGuideCompendium
+    importPregens, ensurePregenCompendium, ensureGuideCompendium, ensureCompanionApiCompendium,
+    api
   };
 
   CONFIG.Actor.documentClass = DnkActor;
@@ -34,6 +37,9 @@ Hooks.once("init", async function () {
   game.settings.register("dungeons-and-kittens", "guideDataVersion", {
     scope: "world", config: false, type: Number, default: 0
   });
+  game.settings.register("dungeons-and-kittens", "companionApiMacroVersion", {
+    scope: "world", config: false, type: Number, default: 0
+  });
 
   await loadTemplates([
     "systems/dungeons-and-kittens/templates/actor/actor-kitten-sheet.html",
@@ -41,7 +47,8 @@ Hooks.once("init", async function () {
     "systems/dungeons-and-kittens/templates/item/item-spell-sheet.html",
     "systems/dungeons-and-kittens/templates/item/item-gear-sheet.html",
     "systems/dungeons-and-kittens/templates/chat/roll-card.html",
-    "systems/dungeons-and-kittens/templates/apps/roll-dialog.html"
+    "systems/dungeons-and-kittens/templates/apps/roll-dialog.html",
+    "systems/dungeons-and-kittens/templates/apps/image-crop.html"
   ]);
 });
 
@@ -51,4 +58,5 @@ Hooks.on("renderChatMessage", (message, html) => activateChatListeners(html));
 Hooks.once("ready", async function () {
   await ensurePregenCompendium();
   await ensureGuideCompendium();
+  await ensureCompanionApiCompendium();
 });

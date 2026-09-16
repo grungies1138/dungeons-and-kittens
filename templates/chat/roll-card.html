@@ -1,8 +1,11 @@
 <div class="dnk-chat-card">
   <header class="dnk-chat-header">
-    <strong>{{actorName}}</strong>
-    {{#if flavor}}<span class="flavor">{{flavor}}</span>{{/if}}
-    <span class="ability">{{abilityLabel}} ({{abilityValue}})</span>
+    <img class="dnk-chat-portrait" src="{{actorImg}}" alt="{{actorName}}"/>
+    <div class="dnk-chat-header-text">
+      <strong>{{actorName}}</strong>
+      {{#if flavor}}<span class="flavor">{{flavor}}</span>{{/if}}
+      <span class="ability">{{abilityLabel}} ({{abilityValue}})</span>
+    </div>
   </header>
 
   <div class="dnk-dice-row">

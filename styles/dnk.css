@@ -1,6 +1,6 @@
 @font-face {
   font-family: "DNK Hand";
-  src: url("systems/dungeons-and-kittens/fonts/PatrickHand-Regular.woff2") format("woff2");
+  src: url("../fonts/PatrickHand-Regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -8,7 +8,7 @@
 
 @font-face {
   font-family: "DNK Body";
-  src: url("systems/dungeons-and-kittens/fonts/Quicksand-Variable.woff2") format("woff2-variations");
+  src: url("../fonts/Quicksand-Variable.woff2") format("woff2-variations");
   font-weight: 400 700;
   font-style: normal;
   font-display: swap;
@@ -90,6 +90,7 @@
 
 .dnk .header-portrait {
   flex: 0 0 auto;
+  position: relative;
 }
 
 .dnk .header-portrait .profile-img {
@@ -100,6 +101,67 @@
   object-fit: cover;
   background: #fff;
   box-shadow: 0 0 0 3px var(--dnk-cream), 0 0 0 5px var(--dnk-brown-light);
+}
+
+.dnk .header-portrait .portrait-crop-btn {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid var(--dnk-cream);
+  background: var(--dnk-orange);
+  color: #fff;
+  font-size: 0.7rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.dnk .header-portrait .portrait-crop-btn:hover { background: var(--dnk-brown); }
+
+/* ---------- Image crop dialog ---------- */
+
+.dnk-crop-app .hint {
+  font-size: 0.85rem;
+  margin: 0 0 8px;
+}
+
+.dnk-crop-stage {
+  position: relative;
+  display: inline-block;
+  max-width: 480px;
+  max-height: 480px;
+  line-height: 0;
+  user-select: none;
+}
+
+.dnk-crop-image {
+  display: block;
+  max-width: 480px;
+  max-height: 480px;
+  width: auto;
+  height: auto;
+}
+
+.dnk-crop-box {
+  position: absolute;
+  border: 2px dashed #fff;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55);
+  cursor: move;
+}
+
+.dnk-crop-handle {
+  position: absolute;
+  right: -7px;
+  bottom: -7px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #5c3a22;
+  cursor: nwse-resize;
 }
 
 .dnk .header-fields { flex: 1; display: flex; flex-direction: column; gap: 6px; }
@@ -445,8 +507,8 @@
 
 .dnk-chat-header {
   display: flex;
-  justify-content: space-between;
-  gap: 6px;
+  align-items: center;
+  gap: 8px;
   font-size: 0.95rem;
   font-family: "DNK Hand", "Segoe Print", cursive;
   border-bottom: 1px solid #a9765a;
@@ -454,7 +516,26 @@
   margin-bottom: 4px;
 }
 
-.dnk-chat-header .flavor { font-style: italic; }
+.dnk-chat-portrait {
+  width: 65px;
+  height: 65px;
+  min-width: 65px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #5c3a22;
+  background: #fff;
+}
+
+.dnk-chat-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.dnk-chat-header-text .flavor { font-style: italic; }
+.dnk-chat-header-text .ability { font-size: 0.85rem; opacity: 0.85; }
 
 .dnk-dice-row {
   display: flex;

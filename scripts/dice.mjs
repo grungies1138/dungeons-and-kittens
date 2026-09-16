@@ -72,6 +72,7 @@ async function renderRollCard(actor, rollData, flavor) {
 
   return renderTemplate("systems/dungeons-and-kittens/templates/chat/roll-card.html", {
     actorName: actor.name,
+    actorImg: actor.img,
     abilityLabel: game.i18n.localize(`DNK.Ability${rollData.ability.charAt(0).toUpperCase()}${rollData.ability.slice(1)}`),
     flavor,
     results: rollData.results,
@@ -108,26 +109,37 @@ async function getMessageAndRoll(event) {
   return { message, rollData, actor };
 }
 
-async function onSpendFurrendship(event) {
-  event.preventDefault();
-  const { message, rollData, actor } = await getMessageAndRoll(event);
-  if (!actor) return;
+/**
+ * Spend 1 Furr-endship on a roll's chat card for an automatic extra success.
+ * Shared by the chat-card button and the Companion API (see api.mjs) so both paths
+ * stay in sync. Throws a localized error message on failure instead of warning directly,
+ * so callers (DOM handler or macro) can decide how to surface it.
+ */
+export async function spendFurrendshipOnMessage(messageId) {
+  const message = game.messages.get(messageId);
+  const rollData = message?.flags?.["dungeons-and-kittens"]?.roll;
+  const actor = rollData && game.actors.get(rollData.actorId);
+  if (!message || !rollData || !actor) throw new Error(game.i18n.localize("DNK.InvalidRollMessage"));
+
   const points = actor.system.resources?.furrendship?.value ?? 0;
-  if (points <= 0) return ui.notifications.warn(game.i18n.localize("DNK.NoFurrendship"));
-  if (rollData.furrendshipSpent >= 4) return ui.notifications.warn(game.i18n.localize("DNK.MaxFurrendshipReached"));
+  if (points <= 0) throw new Error(game.i18n.localize("DNK.NoFurrendship"));
+  if (rollData.furrendshipSpent >= 4) throw new Error(game.i18n.localize("DNK.MaxFurrendshipReached"));
 
   await actor.adjustResource("furrendship", -1);
   rollData.furrendshipSpent += 1;
   await refreshChatCard(message, actor, rollData);
+  return rollData;
 }
 
-async function onReroll(event) {
-  event.preventDefault();
-  const { message, rollData, actor } = await getMessageAndRoll(event);
-  if (!actor) return;
+/** Reroll one failing die on a roll's chat card. Shared by the chat-card button and the Companion API. */
+export async function rerollOnMessage(messageId) {
+  const message = game.messages.get(messageId);
+  const rollData = message?.flags?.["dungeons-and-kittens"]?.roll;
+  const actor = rollData && game.actors.get(rollData.actorId);
+  if (!message || !rollData || !actor) throw new Error(game.i18n.localize("DNK.InvalidRollMessage"));
 
   const idx = rollData.results.findIndex(r => r > rollData.abilityValue);
-  if (idx === -1) return ui.notifications.warn(game.i18n.localize("DNK.NoFailingDie"));
+  if (idx === -1) throw new Error(game.i18n.localize("DNK.NoFailingDie"));
 
   const roll = new Roll("1d6");
   await roll.evaluate();
@@ -135,6 +147,29 @@ async function onReroll(event) {
   rollData.rerolled = true;
 
   await refreshChatCard(message, actor, rollData);
+  return rollData;
+}
+
+async function onSpendFurrendship(event) {
+  event.preventDefault();
+  const { message } = await getMessageAndRoll(event);
+  if (!message) return;
+  try {
+    await spendFurrendshipOnMessage(message.id);
+  } catch (err) {
+    ui.notifications.warn(err.message);
+  }
+}
+
+async function onReroll(event) {
+  event.preventDefault();
+  const { message } = await getMessageAndRoll(event);
+  if (!message) return;
+  try {
+    await rerollOnMessage(message.id);
+  } catch (err) {
+    ui.notifications.warn(err.message);
+  }
 }
 
 async function onApplyDamage(event) {

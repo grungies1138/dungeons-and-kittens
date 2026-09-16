@@ -1,7 +1,8 @@
 import { SKILLS } from "../skills.mjs";
 import { openRollDialog } from "../apps/roll-dialog.mjs";
+import { openImageCropDialog } from "../apps/image-crop.mjs";
 
-const COMBAT_PRESETS = {
+export const COMBAT_PRESETS = {
   fangAttack: { ability: "strong", flavorKey: "DNK.FangAttack" },
   clawAttack: { ability: "strong", flavorKey: "DNK.ClawAttack" },
   defend: { ability: "strong", flavorKey: "DNK.Defend" },
@@ -51,6 +52,7 @@ export class DnkActorSheet extends ActorSheet {
     super.activateListeners(html);
     if (!this.isEditable) return;
 
+    html.find(".portrait-crop-btn").click(this._onCropPortrait.bind(this));
     html.find(".ability-roll").click(this._onAbilityRoll.bind(this));
     html.find(".combat-action").click(this._onCombatAction.bind(this));
     html.find(".resource-adjust").click(this._onResourceAdjust.bind(this));
@@ -58,6 +60,28 @@ export class DnkActorSheet extends ActorSheet {
     html.find(".item-edit").click(this._onItemEdit.bind(this));
     html.find(".item-delete").click(this._onItemDelete.bind(this));
     html.find(".item-roll").click(this._onItemRoll.bind(this));
+  }
+
+  /** Re-crop the portrait that's already set, without picking a new file. */
+  async _onCropPortrait(event) {
+    event.preventDefault();
+    return openImageCropDialog(this.actor, "img");
+  }
+
+  /** @override Route newly-picked portraits through the crop tool before they're assigned. */
+  _onEditImage(event) {
+    const attr = event.currentTarget.dataset.edit;
+    if (attr !== "img") return super._onEditImage(event);
+    event.preventDefault();
+    const current = foundry.utils.getProperty(this.actor, attr);
+    const fp = new FilePicker({
+      current,
+      type: "image",
+      callback: path => openImageCropDialog(this.actor, attr, path),
+      top: this.position.top + 40,
+      left: this.position.left + 10
+    });
+    return fp.browse();
   }
 
   async _onAbilityRoll(event) {
