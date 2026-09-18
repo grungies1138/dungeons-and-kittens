@@ -1,5 +1,5 @@
 import { rollAbilityTest, spendFurrendshipOnMessage, rerollOnMessage } from "./dice.mjs";
-import { COMBAT_PRESETS } from "./sheets/actor-sheet.mjs";
+import { COMBAT_PRESETS, cedeInitiative } from "./sheets/actor-sheet.mjs";
 
 /**
  * Actor-id-based entry points mirroring the actor sheet's buttons, for callers that only have
@@ -24,6 +24,7 @@ export async function rollAbilityTestForActor(actorId, { ability, flavor = "", a
 export async function rollCombatActionForActor(actorId, presetKey, { advantage = 0, disadvantage = 0, difficulty = 0 } = {}) {
   const preset = COMBAT_PRESETS[presetKey];
   if (!preset) throw new Error(`Dungeons & Kittens API: unknown combat action "${presetKey}"`);
+  if (preset.aggressive) await cedeInitiative(requireActor(actorId));
   return rollAbilityTestForActor(actorId, {
     ability: preset.ability,
     flavor: game.i18n.localize(preset.flavorKey),

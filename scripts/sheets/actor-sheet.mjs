@@ -2,14 +2,34 @@ import { SKILLS } from "../skills.mjs";
 import { openRollDialog } from "../apps/roll-dialog.mjs";
 import { openImageCropDialog } from "../apps/image-crop.mjs";
 
+/**
+ * `aggressive` mirrors the Quick Reference's Catfight table: Kittens keep the initiative as
+ * long as they don't make an aggressive action. Fang/Claw Attack and Hinder are listed under
+ * "Aggressive actions" there; Defend, Help, and Move are not.
+ */
 export const COMBAT_PRESETS = {
-  fangAttack: { ability: "strong", flavorKey: "DNK.FangAttack" },
-  clawAttack: { ability: "strong", flavorKey: "DNK.ClawAttack" },
+  fangAttack: { ability: "strong", flavorKey: "DNK.FangAttack", aggressive: true },
+  clawAttack: { ability: "strong", flavorKey: "DNK.ClawAttack", aggressive: true },
   defend: { ability: "strong", flavorKey: "DNK.Defend" },
   help: { ability: "cute", flavorKey: "DNK.Help" },
-  hinder: { ability: "smart", flavorKey: "DNK.Hinder" },
+  hinder: { ability: "smart", flavorKey: "DNK.Hinder", aggressive: true },
   move: { ability: "strong", flavorKey: "DNK.Move" }
 };
+
+/**
+ * Acting aggressively cedes the initiative: drop this actor's combatant below the flat-0
+ * tie everyone starts a round at. Silently does nothing without an active combat, without a
+ * combatant for this actor, or without permission to update it (e.g. a player without control
+ * over the Combat document) - this is a bonus nudge to the tracker, not something a roll
+ * should ever be blocked on.
+ */
+export async function cedeInitiative(actor) {
+  const combatant = game.combat?.combatants.find(c => c.actor?.id === actor.id);
+  if (!combatant) return;
+  try {
+    await combatant.update({ initiative: -1 });
+  } catch (_err) { /* no permission to update the Combat - ignore */ }
+}
 
 export class DnkActorSheet extends ActorSheet {
   static get defaultOptions() {
@@ -95,6 +115,7 @@ export class DnkActorSheet extends ActorSheet {
     const key = event.currentTarget.dataset.action;
     const preset = COMBAT_PRESETS[key];
     if (!preset) return;
+    if (preset.aggressive) await cedeInitiative(this.actor);
     return openRollDialog(this.actor, { ability: preset.ability, flavor: game.i18n.localize(preset.flavorKey) });
   }
 

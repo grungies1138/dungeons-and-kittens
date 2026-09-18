@@ -31,6 +31,17 @@ Hooks.once("init", async function () {
   CONFIG.Item.dataModels.spell = DnkSpellData;
   CONFIG.Item.dataModels.gear = DnkGearData;
 
+  /**
+   * The Quick Reference has no dice-rolled initiative: "Kittens have the initiative as long as
+   * they do not make an aggressive action." A flat 0 formula ties everyone (used when a
+   * combatant is added mid-encounter and rolled individually); the Catfight tab's Fang/Claw
+   * Attack and Hinder buttons then drop that actor below the tie (see cedeInitiative in
+   * sheets/actor-sheet.mjs). combatStart/combatRound below re-tie everyone at the start of
+   * combat and of every round, since Foundry's own Roll All only rolls un-rolled combatants
+   * and won't lift someone back up once they've dropped below the tie.
+   */
+  CONFIG.Combat.initiative = { formula: "0", decimals: 0 };
+
   Actors.unregisterSheet("core", ActorSheet);
   Actors.registerSheet("dnk", DnkActorSheet, { types: ["kitten", "extra"], makeDefault: true, label: "DNK.SheetKitten" });
 
@@ -63,6 +74,16 @@ Hooks.once("init", async function () {
 
 Hooks.on("renderChatMessageHTML", (message, html) => activateChatListeners($(html)));
 Hooks.on("renderChatMessage", (message, html) => activateChatListeners(html));
+
+/** Re-tie every combatant at 0 whenever combat starts or a new round begins - see the note on CONFIG.Combat.initiative above. */
+async function retieInitiative(combat) {
+  if (!game.user.isGM || !combat.combatants.size) return;
+  const updates = combat.combatants.map(c => ({ _id: c.id, initiative: 0 }));
+  await combat.updateEmbeddedDocuments("Combatant", updates);
+}
+
+Hooks.on("combatStart", combat => retieInitiative(combat));
+Hooks.on("combatRound", combat => retieInitiative(combat));
 
 Hooks.once("ready", async function () {
   await ensurePregenCompendium();
