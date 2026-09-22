@@ -26,10 +26,26 @@ Set** and **Core Rulebook**.
   Advantage when relevant — call it as GM). Hover any skill, ability, resource, or backpack/
   spellbook item on the sheet for a tooltip explaining what it does.
 - **Spellbook**: per-character "spells"/special abilities with an ability + success threshold,
-  rollable straight from the sheet.
-- **Backpack**: simple gear list, flagging "Purr-ecious" items that can reroll a failing die.
-- **Catfights**: quick-roll buttons for Fang Attack, Claw Attack, Defend, Help, Hinder, and Move,
-  plus a chat-card button to apply Heart damage to a targeted token.
+  rollable straight from the sheet. The first cast of a spell each day is free; recasting it
+  before a night's rest automatically charges its recast cost in Heart (and refuses the recast
+  if you can't afford it) — a moon icon next to a spell marks it as already cast today.
+- **Backpack**: simple gear list. A "Purr-ecious" item lets the chat card's reroll button
+  appear at all — it only shows up if the actor actually owns one.
+- **Catfights**: quick-roll buttons for Fang Attack, Claw Attack, Defend, Help, Hinder, Move, and
+  Heal Ally, plus chat-card buttons to apply Heart damage to a targeted token, lock in a Defend
+  roll's successes as a Block (automatically absorbed by the next hit against you), and heal a
+  targeted ally's Heart (capped at once per half-day per recipient, tracked automatically).
+- **Out of the Scene**: a Kitten's token is automatically marked "Out of the Scene" (and its
+  combatant flagged defeated, if a combat is running) the moment its Heart hits 0 — and cleared
+  again once Heart rises back above 0. No manual bookkeeping.
+- **Night's Rest button**: a moon icon in the Kitten sheet's own title bar (next to "Prototype
+  Token"/"Close") applies a night's rest to that one character — +1 Heart, resets the half-day
+  heal cooldown, and clears every spell's recast-used flag. Self-service for players; no GM
+  action required. For resting the whole party at once, see the GM Tools compendium below.
+- **Advantage/Disadvantage token status**: toggle these two icons on a token's status effects and
+  the roll dialog will pre-fill that count the next time you roll for that actor.
+- **Dice So Nice**: if that module is active, a "Dungeons & Kittens" colorset is registered as a
+  selectable option (never forced on anyone).
 
 Skill descriptions are original interpretations written for this system (the publicly available
 PDFs list skill names only, not flavor text) — treat them as suggestions, not verbatim rulebook
@@ -89,6 +105,48 @@ Both the Pregenerated Kittens and Player's Guide compendia are version-tracked: 
 this system and the bundled data version changes, the next world load automatically deletes and
 rebuilds the compendium contents so you get the refreshed text without doing anything by hand.
 
+## Character Tables compendium
+
+A world RollTable compendium called **"Dungeons & Kittens: Character Tables"** with three quick
+d20/d16 tables — **Childhood Idea**, **Character Trait Idea**, and **Cattribute Idea** — for a
+fast spark of inspiration during character creation. These are original homebrew suggestions
+written for this system, not a transcription of the Core Rulebook's own (longer) official lists.
+If it doesn't appear, run:
+
+```js
+await game.dnk.ensureTablesCompendium();
+```
+
+## Bestiary compendium
+
+A world Actor compendium called **"Dungeons & Kittens: Bestiary"** with five ready-to-drop-in
+"Extra" NPCs (Feral Alley Cat, Stray Hound, Marsh Hawk, River Rat Bandit, Broken Fence Boar) for
+a Storyteller who wants a quick antagonist without building one from scratch. Original content —
+no stat blocks are published in the free Quick Reference/Quickstart PDFs. If it doesn't appear,
+run:
+
+```js
+await game.dnk.ensureBestiaryCompendium();
+```
+
+## GM Tools compendium
+
+A world macro compendium called **"Dungeons & Kittens: GM Tools"** with one-click, whole-party
+actions instead of adjusting each character individually:
+
+| Macro | Effect |
+| --- | --- |
+| DNK: Apply Lunch Rest | +1 Heart to the party; clears everyone's half-day heal cooldown. |
+| DNK: Apply Night's Rest | +1 Heart to the party; clears the half-day heal cooldown **and** every spell's recast-used flag. |
+| DNK: Grant Party Furr-endship | +1 Furr-endship to the party (for a good evening with friends, or something genuinely moving). |
+
+Each one acts on your currently controlled/selected tokens' actors, or on every Kitten actor in
+the world if nothing is selected. If the compendium doesn't appear, run:
+
+```js
+await game.dnk.ensureGmToolsCompendium();
+```
+
 ## Companion API (for external tools, e.g. a mobile character-sheet app)
 
 Alongside the pregens and Player's Guide, the system auto-creates a world macro compendium called
@@ -103,11 +161,13 @@ Macros (each takes its arguments via the `scope` object passed to `Macro#execute
 | Macro | `scope` fields |
 | --- | --- |
 | DNK API: Roll Ability Test | `actorId`, `ability`, `flavor?`, `advantage?`, `disadvantage?`, `difficulty?` |
-| DNK API: Roll Combat Action | `actorId`, `presetKey` (`fangAttack`/`clawAttack`/`defend`/`help`/`hinder`/`move`), `advantage?`, `disadvantage?`, `difficulty?` |
+| DNK API: Roll Combat Action | `actorId`, `presetKey` (`fangAttack`/`clawAttack`/`defend`/`help`/`hinder`/`move`/`healAlly`), `advantage?`, `disadvantage?`, `difficulty?` |
 | DNK API: Roll Spell | `actorId`, `itemId`, `advantage?`, `disadvantage?` |
 | DNK API: Adjust Resource | `actorId`, `resource` (`heart`/`furrendship`), `delta` (negative to damage/spend) |
 | DNK API: Spend Furrendship | `messageId` (of a roll's chat card) |
 | DNK API: Reroll | `messageId` (of a roll's chat card) |
+| DNK API: Set Block | `messageId` (of a Defend roll's chat card) |
+| DNK API: Heal Targets | `messageId` (of a Heal Ally roll's chat card) |
 
 All of them return a plain-object result (or throw a localized `Error` on failure) rather than
 depending on chat/DOM, so a relay can pass the return value straight back to the calling app. If

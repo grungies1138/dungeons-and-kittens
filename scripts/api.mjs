@@ -1,5 +1,6 @@
-import { rollAbilityTest, spendFurrendshipOnMessage, rerollOnMessage } from "./dice.mjs";
+import { rollAbilityTest, spendFurrendshipOnMessage, rerollOnMessage, setBlockOnMessage, healTargetsFromMessage } from "./dice.mjs";
 import { COMBAT_PRESETS, cedeInitiative } from "./sheets/actor-sheet.mjs";
+import { castSpellForActor } from "./spells.mjs";
 
 /**
  * Actor-id-based entry points mirroring the actor sheet's buttons, for callers that only have
@@ -20,29 +21,28 @@ export async function rollAbilityTestForActor(actorId, { ability, flavor = "", a
   return { messageId: message.id, roll: message.flags["dungeons-and-kittens"].roll };
 }
 
-/** Roll one of the sheet's catfight combat presets (fangAttack/clawAttack/defend/help/hinder/move). */
+/** Roll one of the sheet's catfight combat presets (fangAttack/clawAttack/defend/help/hinder/move/healAlly). */
 export async function rollCombatActionForActor(actorId, presetKey, { advantage = 0, disadvantage = 0, difficulty = 0 } = {}) {
   const preset = COMBAT_PRESETS[presetKey];
   if (!preset) throw new Error(`Dungeons & Kittens API: unknown combat action "${presetKey}"`);
-  if (preset.aggressive) await cedeInitiative(requireActor(actorId));
-  return rollAbilityTestForActor(actorId, {
+  const actor = requireActor(actorId);
+  if (preset.aggressive) await cedeInitiative(actor);
+  const message = await rollAbilityTest(actor, {
     ability: preset.ability,
     flavor: game.i18n.localize(preset.flavorKey),
-    advantage, disadvantage, difficulty
+    advantage, disadvantage, difficulty,
+    isDefend: preset.isDefend, isHeal: preset.isHeal
   });
+  return { messageId: message.id, roll: message.flags["dungeons-and-kittens"].roll };
 }
 
-/** Roll a spellbook item on an actor's sheet. */
+/** Roll a spellbook item on an actor's sheet, applying the same free-first-cast/recast-cost rule as the sheet button. */
 export async function rollSpellForActor(actorId, itemId, { advantage = 0, disadvantage = 0 } = {}) {
   const actor = requireActor(actorId);
   const item = actor.items.get(itemId);
   if (!item || item.type !== "spell") throw new Error(`Dungeons & Kittens API: no spell "${itemId}" on actor "${actorId}"`);
-  return rollAbilityTestForActor(actorId, {
-    ability: item.system.ability,
-    flavor: item.name,
-    difficulty: item.system.successes,
-    advantage, disadvantage
-  });
+  const message = await castSpellForActor(actor, item, { advantage, disadvantage });
+  return { messageId: message.id, roll: message.flags["dungeons-and-kittens"].roll };
 }
 
 /**
@@ -55,4 +55,4 @@ export async function adjustActorResource(actorId, resource, delta) {
   return actor.system.resources[resource];
 }
 
-export { spendFurrendshipOnMessage, rerollOnMessage };
+export { spendFurrendshipOnMessage, rerollOnMessage, setBlockOnMessage, healTargetsFromMessage };

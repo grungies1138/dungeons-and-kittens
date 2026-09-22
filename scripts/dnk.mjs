@@ -12,6 +12,10 @@ import { SKILLS } from "./skills.mjs";
 import { importPregens, ensurePregenCompendium } from "./pregens.mjs";
 import { ensureGuideCompendium } from "./journals.mjs";
 import { ensureCompanionApiCompendium } from "./macros.mjs";
+import { ensureGmToolsCompendium } from "./gm-tools.mjs";
+import { ensureTablesCompendium } from "./tables.mjs";
+import { ensureBestiaryCompendium } from "./bestiary.mjs";
+import * as rest from "./rest.mjs";
 import * as api from "./api.mjs";
 
 Hooks.once("init", async function () {
@@ -20,7 +24,8 @@ Hooks.once("init", async function () {
   game.dnk = {
     DnkActor, DnkItem, rollAbilityTest, openRollDialog, SKILLS,
     importPregens, ensurePregenCompendium, ensureGuideCompendium, ensureCompanionApiCompendium,
-    api
+    ensureGmToolsCompendium, ensureTablesCompendium, ensureBestiaryCompendium,
+    rest, api
   };
 
   CONFIG.Actor.documentClass = DnkActor;
@@ -42,6 +47,20 @@ Hooks.once("init", async function () {
    */
   CONFIG.Combat.initiative = { formula: "0", decimals: 0 };
 
+  /**
+   * Three condition icons for the token HUD: "Out of the Scene" is applied automatically
+   * (see the updateActor hook below) whenever Heart hits 0, mirroring "at 0 the Kitten sits
+   * out the rest of the scene." Advantage/Disadvantage are manual toggles a player can set on
+   * their own token before rolling - the roll dialog pre-fills its count from them (see
+   * apps/roll-dialog.mjs) but does not clear them, since how long a condition lasts is a GM/
+   * table call.
+   */
+  CONFIG.statusEffects.push(
+    { id: "dnk-outofscene", name: "DNK.StatusOutOfScene", img: "icons/svg/unconscious.svg" },
+    { id: "dnk-advantage", name: "DNK.StatusAdvantage", img: "icons/svg/upgrade.svg" },
+    { id: "dnk-disadvantage", name: "DNK.StatusDisadvantage", img: "icons/svg/downgrade.svg" }
+  );
+
   Actors.unregisterSheet("core", ActorSheet);
   Actors.registerSheet("dnk", DnkActorSheet, { types: ["kitten", "extra"], makeDefault: true, label: "DNK.SheetKitten" });
 
@@ -58,6 +77,15 @@ Hooks.once("init", async function () {
     scope: "world", config: false, type: Number, default: 0
   });
   game.settings.register("dungeons-and-kittens", "companionApiMacroVersion", {
+    scope: "world", config: false, type: Number, default: 0
+  });
+  game.settings.register("dungeons-and-kittens", "gmToolsMacroVersion", {
+    scope: "world", config: false, type: Number, default: 0
+  });
+  game.settings.register("dungeons-and-kittens", "tablesDataVersion", {
+    scope: "world", config: false, type: Number, default: 0
+  });
+  game.settings.register("dungeons-and-kittens", "bestiaryDataVersion", {
     scope: "world", config: false, type: Number, default: 0
   });
 
@@ -85,8 +113,54 @@ async function retieInitiative(combat) {
 Hooks.on("combatStart", combat => retieInitiative(combat));
 Hooks.on("combatRound", combat => retieInitiative(combat));
 
+/**
+ * "At 0, a Kitten sits out the rest of the scene - never dead." Whenever an update actually
+ * changes Heart's value, toggle the "Out of the Scene" token status and (if there's an active
+ * combat) the combatant's defeated flag to match, instead of leaving a GM to notice and mark
+ * it by hand. Runs only on the GM's client, matching retieInitiative above, since both
+ * toggling a status effect on someone else's actor and updating a Combatant need permissions
+ * a player may not have.
+ */
+Hooks.on("updateActor", async (actor, changes) => {
+  if (!game.user.isGM) return;
+  const heart = foundry.utils.getProperty(changes, "system.resources.heart.value");
+  if (heart === undefined) return;
+
+  const isOut = heart <= 0;
+  if (actor.statuses.has("dnk-outofscene") !== isOut) {
+    await actor.toggleStatusEffect("dnk-outofscene", { active: isOut, overlay: true });
+  }
+
+  const combatant = game.combat?.combatants.find(c => c.actor?.id === actor.id);
+  if (combatant && combatant.defeated !== isOut) {
+    try {
+      await combatant.update({ defeated: isOut });
+    } catch (_err) { /* no permission to update the Combat - ignore, same as cedeInitiative */ }
+  }
+});
+
+/**
+ * Register an optional Dice So Nice colorset matching the parchment/paw theme, if that module
+ * is active. Purely cosmetic and added as a selectable option (not forced on anyone).
+ */
+Hooks.once("diceSoNiceReady", dice3d => {
+  dice3d.addColorset({
+    name: "dnkPaws",
+    description: "Dungeons & Kittens",
+    category: "Colors",
+    foreground: "#5c3a22",
+    background: "#f8f0da",
+    outline: "#5c3a22",
+    texture: "paper",
+    material: "wood"
+  });
+});
+
 Hooks.once("ready", async function () {
   await ensurePregenCompendium();
   await ensureGuideCompendium();
   await ensureCompanionApiCompendium();
+  await ensureGmToolsCompendium();
+  await ensureTablesCompendium();
+  await ensureBestiaryCompendium();
 });

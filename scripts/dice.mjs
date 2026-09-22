@@ -34,7 +34,7 @@ function countSuccesses(results, abilityValue) {
  * @param {number} [options.disadvantage] Count of disadvantage sources.
  * @param {number} [options.difficulty]  Successes required (0 = none), 1-4.
  */
-export async function rollAbilityTest(actor, { ability, flavor = "", advantage = 0, disadvantage = 0, difficulty = 0 } = {}) {
+export async function rollAbilityTest(actor, { ability, flavor = "", advantage = 0, disadvantage = 0, difficulty = 0, isDefend = false, isHeal = false } = {}) {
   const abilityValue = Number(actor.system.abilities?.[ability]?.value ?? 0);
   const diceCount = diceCountFor(advantage, disadvantage);
 
@@ -51,7 +51,9 @@ export async function rollAbilityTest(actor, { ability, flavor = "", advantage =
     results,
     difficulty: Number(difficulty) || 0,
     furrendshipSpent: 0,
-    rerolled: false
+    rerolled: false,
+    isDefend: !!isDefend,
+    isHeal: !!isHeal
   };
 
   const content = await renderRollCard(actor, rollData, flavor);
@@ -69,6 +71,7 @@ async function renderRollCard(actor, rollData, flavor) {
   const triple = hasTriple(rollData.results);
   const difficultyLabel = rollData.difficulty ? game.i18n.localize(DIFFICULTIES[rollData.difficulty]) : null;
   const passed = rollData.difficulty ? successes >= rollData.difficulty : null;
+  const hasPurrecious = actor.items.some(i => i.type === "gear" && i.system.purrecious);
 
   return renderTemplate("systems/dungeons-and-kittens/templates/chat/roll-card.html", {
     actorName: actor.name,
@@ -82,7 +85,9 @@ async function renderRollCard(actor, rollData, flavor) {
     difficultyLabel,
     passed,
     canSpendFurrendship: (actor.system.resources?.furrendship?.value ?? 0) > 0 && rollData.furrendshipSpent < 4,
-    canReroll: !rollData.rerolled && rollData.results.some(r => r > rollData.abilityValue),
+    canReroll: !rollData.rerolled && hasPurrecious && rollData.results.some(r => r > rollData.abilityValue),
+    canSetBlock: rollData.isDefend && successes > 0,
+    canHealTarget: rollData.isHeal && successes > 0,
     isGM: game.user.isGM
   });
 }
@@ -94,10 +99,22 @@ async function refreshChatCard(message, actor, rollData) {
   await message.update({ content, "flags.dungeons-and-kittens.roll": rollData });
 }
 
+/**
+ * dnk.mjs calls this from both "renderChatMessageHTML" (v13+) and the legacy "renderChatMessage"
+ * hook, both of which fire on current Foundry versions for the same message element - without
+ * this guard, every listener below gets bound twice, so a single click on e.g. "Apply Heart
+ * damage" silently applies it twice. Dedupe by marking the element the first time it's bound.
+ */
 export function activateChatListeners(html) {
+  const el = html[0];
+  if (el?.dataset?.dnkListenersBound) return;
+  if (el?.dataset) el.dataset.dnkListenersBound = "1";
+
   html.on("click", ".dnk-spend-furrendship", onSpendFurrendship);
   html.on("click", ".dnk-reroll", onReroll);
   html.on("click", ".dnk-apply-damage", onApplyDamage);
+  html.on("click", ".dnk-set-block", onSetBlock);
+  html.on("click", ".dnk-heal-target", onHealTarget);
 }
 
 async function getMessageAndRoll(event) {
@@ -137,6 +154,10 @@ export async function rerollOnMessage(messageId) {
   const rollData = message?.flags?.["dungeons-and-kittens"]?.roll;
   const actor = rollData && game.actors.get(rollData.actorId);
   if (!message || !rollData || !actor) throw new Error(game.i18n.localize("DNK.InvalidRollMessage"));
+
+  if (!actor.items.some(i => i.type === "gear" && i.system.purrecious)) {
+    throw new Error(game.i18n.localize("DNK.NoPurrecious"));
+  }
 
   const idx = rollData.results.findIndex(r => r > rollData.abilityValue);
   if (idx === -1) throw new Error(game.i18n.localize("DNK.NoFailingDie"));
@@ -179,6 +200,81 @@ async function onApplyDamage(event) {
   if (!targets.length) return ui.notifications.warn(game.i18n.localize("DNK.NoTarget"));
   for (const token of targets) {
     const targetActor = token.actor;
-    if (targetActor) await targetActor.adjustResource("heart", -amount);
+    if (!targetActor) continue;
+    const block = Number(targetActor.getFlag("dungeons-and-kittens", "block")) || 0;
+    const finalAmount = Math.max(0, amount - block);
+    if (block > 0) {
+      await targetActor.unsetFlag("dungeons-and-kittens", "block");
+      ui.notifications.info(game.i18n.format("DNK.BlockAbsorbed", { name: targetActor.name, block, remaining: finalAmount }));
+    }
+    if (finalAmount > 0) await targetActor.adjustResource("heart", -finalAmount);
+  }
+}
+
+/** Lock in a Defend roll's current successes as a Block that cancels that much of the next hit against this actor. */
+export async function setBlockOnMessage(messageId) {
+  const message = game.messages.get(messageId);
+  const rollData = message?.flags?.["dungeons-and-kittens"]?.roll;
+  const actor = rollData && game.actors.get(rollData.actorId);
+  if (!message || !rollData || !actor) throw new Error(game.i18n.localize("DNK.InvalidRollMessage"));
+
+  const successes = countSuccesses(rollData.results, rollData.abilityValue) + rollData.furrendshipSpent;
+  if (successes <= 0) throw new Error(game.i18n.localize("DNK.NoBlockSuccesses"));
+
+  await actor.setFlag("dungeons-and-kittens", "block", successes);
+  ui.notifications.info(game.i18n.format("DNK.BlockSet", { name: actor.name, amount: successes }));
+  return successes;
+}
+
+/**
+ * Heal 1 Heart on each currently targeted token, from a successful Heal Ally (Smart) roll.
+ * Enforces "once per half-day" per recipient (see rest.mjs for how that cooldown clears).
+ */
+export async function healTargetsFromMessage(messageId) {
+  const message = game.messages.get(messageId);
+  const rollData = message?.flags?.["dungeons-and-kittens"]?.roll;
+  if (!message || !rollData) throw new Error(game.i18n.localize("DNK.InvalidRollMessage"));
+
+  const targets = Array.from(game.user.targets);
+  if (!targets.length) throw new Error(game.i18n.localize("DNK.NoTarget"));
+
+  const healed = [];
+  const skipped = [];
+  for (const token of targets) {
+    const targetActor = token.actor;
+    if (!targetActor) continue;
+    if (targetActor.getFlag("dungeons-and-kittens", "healedHalfDay")) {
+      skipped.push(targetActor.name);
+      continue;
+    }
+    await targetActor.adjustResource("heart", 1);
+    await targetActor.setFlag("dungeons-and-kittens", "healedHalfDay", true);
+    healed.push(targetActor.name);
+  }
+
+  if (healed.length) ui.notifications.info(game.i18n.format("DNK.HealedTargets", { names: healed.join(", ") }));
+  if (skipped.length) ui.notifications.warn(game.i18n.format("DNK.AlreadyHealedHalfDay", { names: skipped.join(", ") }));
+  return { healed, skipped };
+}
+
+async function onSetBlock(event) {
+  event.preventDefault();
+  const { message } = await getMessageAndRoll(event);
+  if (!message) return;
+  try {
+    await setBlockOnMessage(message.id);
+  } catch (err) {
+    ui.notifications.warn(err.message);
+  }
+}
+
+async function onHealTarget(event) {
+  event.preventDefault();
+  const { message } = await getMessageAndRoll(event);
+  if (!message) return;
+  try {
+    await healTargetsFromMessage(message.id);
+  } catch (err) {
+    ui.notifications.warn(err.message);
   }
 }

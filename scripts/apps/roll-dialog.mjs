@@ -11,10 +11,16 @@ export async function openRollDialog(actor, presets = {}) {
   const abilityLabel = game.i18n.localize(`DNK.Ability${ability.charAt(0).toUpperCase()}${ability.slice(1)}`);
   const flavorHint = flavor ? `${flavor} — ${abilityLabel}` : abilityLabel;
 
+  /** Default the dialog's advantage/disadvantage from the actor's token status icons, so
+   *  toggling "Advantage"/"Disadvantage" on a token before rolling pre-fills the count -
+   *  an explicit preset (e.g. a combat action) still wins over the status. */
+  const statusAdvantage = actor.statuses?.has("dnk-advantage") ? 1 : 0;
+  const statusDisadvantage = actor.statuses?.has("dnk-disadvantage") ? 1 : 0;
+
   const content = await renderTemplate("systems/dungeons-and-kittens/templates/apps/roll-dialog.html", {
     flavorHint,
-    advantage: presets.advantage ?? 0,
-    disadvantage: presets.disadvantage ?? 0,
+    advantage: presets.advantage ?? statusAdvantage,
+    disadvantage: presets.disadvantage ?? statusDisadvantage,
     difficulty: presets.difficulty ?? 0
   });
 
@@ -31,7 +37,10 @@ export async function openRollDialog(actor, presets = {}) {
             const advantage = Number(form.advantage.value) || 0;
             const disadvantage = Number(form.disadvantage.value) || 0;
             const difficulty = Number(form.difficulty.value) || 0;
-            const message = await rollAbilityTest(actor, { ability, flavor, advantage, disadvantage, difficulty });
+            const message = await rollAbilityTest(actor, {
+              ability, flavor, advantage, disadvantage, difficulty,
+              isDefend: presets.isDefend, isHeal: presets.isHeal
+            });
             resolve(message);
           }
         }
