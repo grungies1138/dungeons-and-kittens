@@ -46,6 +46,12 @@
     {{#if canReroll}}
       <button class="dnk-reroll" type="button">{{localize "DNK.UseItemReroll"}}</button>
     {{/if}}
+    {{#if canSetBlock}}
+      <button class="dnk-set-block" type="button">{{localize "DNK.SetAsBlock"}}</button>
+    {{/if}}
+    {{#if canHealTarget}}
+      <button class="dnk-heal-target" type="button">{{localize "DNK.HealTarget"}}</button>
+    {{/if}}
     <button class="dnk-apply-damage" type="button" data-amount="{{successes}}">{{localize "DNK.ApplyDamage"}} ({{successes}})</button>
   </div>
 </div>

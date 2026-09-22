@@ -109,7 +109,7 @@
       <ol class="item-list">
         {{#each spells}}
           <li class="item-row" data-item-id="{{this.id}}">
-            <span class="item-name" data-tooltip="{{this.system.description}}">{{this.name}}</span>
+            <span class="item-name" data-tooltip="{{this.system.description}}">{{this.name}}{{#if this.usedToday}} <i class="fas fa-moon" title="{{localize 'DNK.SpellUsedToday'}}"></i>{{/if}}</span>
             <span class="item-detail">{{this.system.ability}} / {{this.system.successes}} succ.</span>
             <span class="item-controls">
               <a class="item-roll" title="{{localize 'DNK.Roll'}}"><i class="fas fa-dice-d6"></i></a>
@@ -146,11 +146,13 @@
         <button type="button" class="combat-action" data-action="help" data-tooltip="Grant an ally Advantage on their next action.">{{localize "DNK.Help"}}</button>
         <button type="button" class="combat-action" data-action="hinder" data-tooltip="Saddle an opponent with Disadvantage on their next action.">{{localize "DNK.Hinder"}}</button>
         <button type="button" class="combat-action" data-action="move" data-tooltip="Reposition, with a Strong/Smart test if it's risky.">{{localize "DNK.Move"}}</button>
+        <button type="button" class="combat-action" data-action="healAlly" data-tooltip="A successful Smart test heals 1 Heart on a targeted ally - once per half-day per recipient.">{{localize "DNK.HealAlly"}}</button>
       </div>
       <p class="hint">
         Fang: Strong or Cute + a helpful skill. Claw: Strong or Smart + Scratch + a weapon.
         Attacks deal 1 Heart damage per success to a targeted token (use the chat card button).
-        Defend cancels 1 opponent success per success rolled. Kittens keep the initiative unless attacking.
+        Defend's successes can be locked in as a Block on the chat card, cancelling that many
+        points off the next hit against you. Kittens keep the initiative unless attacking.
       </p>
     </div>
 

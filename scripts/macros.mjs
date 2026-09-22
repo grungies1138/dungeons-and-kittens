@@ -6,7 +6,7 @@
  */
 
 /** Bump this whenever COMPANION_MACROS changes so existing worlds get the refreshed macros. */
-export const MACRO_DATA_VERSION = 1;
+export const MACRO_DATA_VERSION = 2;
 
 const COMPANION_MACROS = [
   {
@@ -62,6 +62,20 @@ const COMPANION_MACROS = [
     img: "icons/svg/d6-grey.svg",
     command: `
       return await game.dnk.api.rerollOnMessage(scope.messageId);
+    `.trim()
+  },
+  {
+    name: "DNK API: Set Block",
+    img: "icons/svg/shield.svg",
+    command: `
+      return await game.dnk.api.setBlockOnMessage(scope.messageId);
+    `.trim()
+  },
+  {
+    name: "DNK API: Heal Targets",
+    img: "icons/svg/heal.svg",
+    command: `
+      return await game.dnk.api.healTargetsFromMessage(scope.messageId);
     `.trim()
   }
 ];

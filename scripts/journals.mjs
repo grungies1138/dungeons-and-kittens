@@ -8,7 +8,7 @@
 import { SKILLS } from "./skills.mjs";
 
 /** Bump this whenever the guide content changes so existing worlds get the refreshed pages. */
-export const GUIDE_DATA_VERSION = 3;
+export const GUIDE_DATA_VERSION = 5;
 
 function page(name, html, sort) {
   return {
@@ -42,7 +42,9 @@ const CREATION_GUIDE = {
       <p>A few examples drawn from the official ready-to-play Kittens: <em>Country Kitten</em>,
       <em>Young Noble</em>, <em>Meowge</em> (a young student of meowgic), <em>Soldier's Child</em>,
       and <em>Catnut</em> (raised wild in the woods). The Core Rulebook has a much longer list to
-      pick from if you want more options - ask your Storyteller.</p>
+      pick from if you want more options - ask your Storyteller, or open the <em>Character
+      Tables</em> compendium and roll on "Childhood Idea" for a quick spark of inspiration
+      (original homebrew ideas, not an official list).</p>
     `, 200000),
 
     page("3. Abilities: Strong, Smart, Cute", `
@@ -95,8 +97,9 @@ const CREATION_GUIDE = {
         <li>A unique <strong>Cattribute</strong> - a special narrative feature nobody else has.
         The five official Kittens use: a ghostly <em>Mystic Mentor</em>, a loyal
         <em>Animal Companion</em>, a mysterious <em>Inheritance</em>, a famous <em>Heroic
-        Lineage</em>, and the gift of <em>Disguise</em>. Write your own, or reuse one of these as
-        inspiration, and describe it in the Story tab.</li>
+        Lineage</em>, and the gift of <em>Disguise</em>. Write your own, or reuse one of these
+        (or roll on the <em>Character Tables</em> compendium's "Cattribute Idea" table for more
+        homebrew sparks) as inspiration, and describe it in the Story tab.</li>
       </ul>
     `, 600000),
 
@@ -171,7 +174,10 @@ const MECHANICS_GUIDE = {
       in play.</p>
       <p><strong>Heart</strong> drops when your Kitten is hurt, scared, or worn down, and comes
       back with rest, a meal, or a friend's care. At 0, your Kitten sits out the rest of the
-      scene rather than being hurt further - they're never in danger of dying.</p>
+      scene rather than being hurt further - they're never in danger of dying (the system marks
+      them "Out of the Scene" automatically). Click the moon icon (<strong>"Night's Rest"</strong>)
+      in your sheet's title bar at the end of a session or scene for +1 Heart and to reset your
+      spell recasts and healing cooldown for the next day.</p>
       <p><strong>Furr-endship</strong> doesn't refill automatically - your Kitten earns it back
       through a good night's rest somewhere safe, a warm evening with friends, or something
       genuinely moving. Spend it in the moment: every roll's chat card has a
@@ -190,16 +196,20 @@ const MECHANICS_GUIDE = {
     page("5. Spellbook in Play", `
       <p>Each entry in the Spellbook tab already knows its own ability and success threshold -
       just click the die icon on that row to roll it as a difficulty-gated test automatically.
-      A spell that requires care to reuse can be recast before the next morning by spending Heart
-      points (shown on the item); track that manually with the Heart +/- buttons.</p>
+      The <strong>first cast of each spell "today" is free</strong>; casting the same one again
+      before your next night's rest automatically charges its recast cost in Heart (shown on the
+      item) - the sheet handles this for you, including refusing the recast if you don't have
+      enough Heart to pay it. A little moon icon next to a spell's name means it's already been
+      cast today. A GM's "DNK: Apply Night's Rest" macro (see the <em>GM Tools</em> compendium)
+      clears every character's recast flags at once.</p>
     `, 500000),
 
     page("6. Backpack & Purr-ecious Items", `
       <p>Ordinary backpack items are mostly for flavor and roleplaying leverage - a good excuse
       the Storyteller can reward. A <strong>Purr-ecious</strong> item is mechanically useful: after
       any roll where it would help, the chat card's <em>"Use item (reroll a failing die)"</em>
-      button lets you reroll one die you didn't like. It's available once per roll where a
-      failing die exists.</p>
+      button lets you reroll one die you didn't like - it only appears if your Kitten actually
+      owns a Purr-ecious item, and only once per roll where a failing die exists.</p>
     `, 600000),
 
     page("7. Catfights", `
@@ -208,15 +218,26 @@ const MECHANICS_GUIDE = {
       <ul>
         <li><strong>Fang Attack</strong> and <strong>Claw Attack</strong> - offensive actions;
         successes translate into Heart damage.</li>
-        <li><strong>Defend</strong> - each success cancels one success from an incoming attack.</li>
+        <li><strong>Defend</strong> - each success cancels one success from an incoming attack.
+        Click <em>"Set as Block"</em> on the chat card to lock in that many successes; the next
+        <em>"Apply Heart damage"</em> click against you automatically subtracts your Block first,
+        then spends it.</li>
         <li><strong>Help</strong> - grants an ally Advantage on their next action.</li>
         <li><strong>Hinder</strong> - saddles an opponent with Disadvantage.</li>
         <li><strong>Move</strong> - repositioning, sometimes with a Strong or Smart test if it's
         risky.</li>
+        <li><strong>Heal Ally</strong> - a Smart test; on a success, target the ally and click
+        <em>"Heal target(s)"</em> to give them 1 Heart. Capped at once per half-day per recipient -
+        the sheet tracks this and warns you if someone's already been healed that way. A GM's
+        "DNK: Apply Lunch Rest" / "Apply Night's Rest" macros (<em>GM Tools</em> compendium) clear
+        that cooldown for the whole party at once, along with the party's own Heart regain.</li>
       </ul>
       <p>Kittens keep the initiative as long as they aren't the ones attacking. After an attack
       roll, target the enemy token and use the <em>"Apply Heart damage to target(s)"</em> button
-      on the chat card - it subtracts the successes rolled straight from the target's Heart.</p>
+      on the chat card - it subtracts the successes rolled straight from the target's Heart (minus
+      any Block they've set). If that drops a token's Heart to 0, the system automatically marks
+      them "Out of the Scene" (and defeated on the combat tracker, if one's running) - never a
+      manual step.</p>
     `, 700000),
 
     page("8. Quick Reference", `
@@ -228,9 +249,16 @@ const MECHANICS_GUIDE = {
         <li>Heart max = Strong + Smart. Furr-endship max = Cute.</li>
         <li>Spend 1 Furr-endship for +1 automatic success (max 4 per test) or to hand a Heart
         point to a friend.</li>
-        <li>A trained skill grants Advantage when it applies.</li>
+        <li>A trained skill grants Advantage when it applies. Toggling the Advantage/Disadvantage
+        icon on a token's status effects pre-fills the roll dialog's count.</li>
         <li>A Purr-ecious item can reroll one failing die.</li>
-        <li>Attacks deal Heart damage equal to successes; Kittens are never at risk of dying.</li>
+        <li>Attacks deal Heart damage equal to successes (minus a defender's Block); Kittens are
+        never at risk of dying - Heart hitting 0 auto-marks them Out of the Scene.</li>
+        <li>A spell's first cast each day is free; recasting before a night's rest auto-charges
+        its Heart cost.</li>
+        <li>Click the moon icon in your own sheet's title bar for a self-service Night's Rest
+        (+1 Heart, resets recasts/healing cooldown). GM Tools compendium: one-click Lunch Rest,
+        Night's Rest, and Grant Party Furr-endship macros for the whole party at once.</li>
       </ul>
     `, 800000)
   ]

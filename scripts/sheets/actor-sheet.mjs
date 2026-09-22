@@ -1,19 +1,27 @@
 import { SKILLS } from "../skills.mjs";
 import { openRollDialog } from "../apps/roll-dialog.mjs";
 import { openImageCropDialog } from "../apps/image-crop.mjs";
+import { castSpell } from "../spells.mjs";
+import { applyNightRestToActor } from "../rest.mjs";
 
 /**
  * `aggressive` mirrors the Quick Reference's Catfight table: Kittens keep the initiative as
  * long as they don't make an aggressive action. Fang/Claw Attack and Hinder are listed under
  * "Aggressive actions" there; Defend, Help, and Move are not.
+ *
+ * `isDefend`/`isHeal` flag the roll so the chat card can offer its "Set as Block" / "Heal
+ * target(s)" buttons (see dice.mjs) - Defend's successes cancel a later hit, and Heal Ally
+ * applies the "another character's successful Smart test" Heart regain from the Quick
+ * Reference, once per half-day per recipient.
  */
 export const COMBAT_PRESETS = {
   fangAttack: { ability: "strong", flavorKey: "DNK.FangAttack", aggressive: true },
   clawAttack: { ability: "strong", flavorKey: "DNK.ClawAttack", aggressive: true },
-  defend: { ability: "strong", flavorKey: "DNK.Defend" },
+  defend: { ability: "strong", flavorKey: "DNK.Defend", isDefend: true },
   help: { ability: "cute", flavorKey: "DNK.Help" },
   hinder: { ability: "smart", flavorKey: "DNK.Hinder", aggressive: true },
-  move: { ability: "strong", flavorKey: "DNK.Move" }
+  move: { ability: "strong", flavorKey: "DNK.Move" },
+  healAlly: { ability: "smart", flavorKey: "DNK.HealAlly", isHeal: true }
 };
 
 /**
@@ -48,6 +56,33 @@ export class DnkActorSheet extends ActorSheet {
     return `systems/dungeons-and-kittens/templates/actor/actor-${this.actor.type}-sheet.html`;
   }
 
+  /**
+   * @override Add a self-service "Night's Rest" header button for Kittens, next to Foundry's
+   * own "Prototype Token"/"Close" buttons - +1 Heart, clears the half-day heal cooldown, and
+   * resets any recast spells. Kitten-only: Extras are GM-controlled, and the GM already has
+   * the whole-party version of this in the GM Tools macro compendium (see rest.mjs).
+   */
+  _getHeaderButtons() {
+    const buttons = super._getHeaderButtons();
+    if (this.isEditable && this.actor.type === "kitten") {
+      buttons.unshift({
+        label: game.i18n.localize("DNK.NightRestButton"),
+        class: "dnk-night-rest",
+        icon: "fas fa-moon",
+        onclick: () => this._onNightRest()
+      });
+    }
+    return buttons;
+  }
+
+  async _onNightRest() {
+    try {
+      await applyNightRestToActor(this.actor);
+    } catch (err) {
+      ui.notifications.warn(err.message);
+    }
+  }
+
   /** @override */
   async getData(options) {
     const context = await super.getData(options);
@@ -62,6 +97,7 @@ export class DnkActorSheet extends ActorSheet {
     }));
 
     context.spells = this.actor.items.filter(i => i.type === "spell").sort((a, b) => a.sort - b.sort);
+    for (const spell of context.spells) spell.usedToday = spell.getFlag("dungeons-and-kittens", "usedToday") ?? false;
     context.gear = this.actor.items.filter(i => i.type === "gear").sort((a, b) => a.sort - b.sort);
 
     return context;
@@ -116,7 +152,12 @@ export class DnkActorSheet extends ActorSheet {
     const preset = COMBAT_PRESETS[key];
     if (!preset) return;
     if (preset.aggressive) await cedeInitiative(this.actor);
-    return openRollDialog(this.actor, { ability: preset.ability, flavor: game.i18n.localize(preset.flavorKey) });
+    return openRollDialog(this.actor, {
+      ability: preset.ability,
+      flavor: game.i18n.localize(preset.flavorKey),
+      isDefend: preset.isDefend,
+      isHeal: preset.isHeal
+    });
   }
 
   async _onResourceAdjust(event) {
@@ -151,10 +192,10 @@ export class DnkActorSheet extends ActorSheet {
     event.preventDefault();
     const item = this._getItemFromEvent(event);
     if (!item || item.type !== "spell") return;
-    return openRollDialog(this.actor, {
-      ability: item.system.ability,
-      flavor: item.name,
-      difficulty: item.system.successes
-    });
+    try {
+      return await castSpell(this.actor, item);
+    } catch (err) {
+      ui.notifications.warn(err.message);
+    }
   }
 }
