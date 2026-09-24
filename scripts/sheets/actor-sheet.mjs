@@ -13,16 +13,31 @@ import { applyNightRestToActor } from "../rest.mjs";
  * target(s)" buttons (see dice.mjs) - Defend's successes cancel a later hit, and Heal Ally
  * applies the "another character's successful Smart test" Heart regain from the Quick
  * Reference, once per half-day per recipient.
+ *
+ * `furrendshipCost` mirrors the Quick Reference's Furr-endship entry: "Must spend 1 point to
+ * start a Claw Catfight."
  */
 export const COMBAT_PRESETS = {
   fangAttack: { ability: "strong", flavorKey: "DNK.FangAttack", aggressive: true },
-  clawAttack: { ability: "strong", flavorKey: "DNK.ClawAttack", aggressive: true },
+  clawAttack: { ability: "strong", flavorKey: "DNK.ClawAttack", aggressive: true, furrendshipCost: 1 },
   defend: { ability: "strong", flavorKey: "DNK.Defend", isDefend: true },
   help: { ability: "cute", flavorKey: "DNK.Help" },
   hinder: { ability: "smart", flavorKey: "DNK.Hinder", aggressive: true },
   move: { ability: "strong", flavorKey: "DNK.Move" },
   healAlly: { ability: "smart", flavorKey: "DNK.HealAlly", isHeal: true }
 };
+
+/** Whether an actor has enough Furr-endship to cover a combat preset's cost (0 if it has none). */
+export function canAffordCombatCost(actor, preset) {
+  const cost = preset.furrendshipCost ?? 0;
+  return cost <= 0 || (actor.system.resources?.furrendship?.value ?? 0) >= cost;
+}
+
+/** Deduct a combat preset's Furr-endship cost, if any. Call only once the action is actually taken. */
+export async function chargeCombatCost(actor, preset) {
+  const cost = preset.furrendshipCost ?? 0;
+  if (cost > 0) await actor.adjustResource("furrendship", -cost);
+}
 
 /**
  * Acting aggressively cedes the initiative: drop this actor's combatant below the flat-0
@@ -151,13 +166,18 @@ export class DnkActorSheet extends ActorSheet {
     const key = event.currentTarget.dataset.action;
     const preset = COMBAT_PRESETS[key];
     if (!preset) return;
+    if (!canAffordCombatCost(this.actor, preset)) {
+      return ui.notifications.warn(game.i18n.format("DNK.NotEnoughFurrendshipForAction", { cost: preset.furrendshipCost }));
+    }
     if (preset.aggressive) await cedeInitiative(this.actor);
-    return openRollDialog(this.actor, {
+    const message = await openRollDialog(this.actor, {
       ability: preset.ability,
       flavor: game.i18n.localize(preset.flavorKey),
       isDefend: preset.isDefend,
       isHeal: preset.isHeal
     });
+    if (message) await chargeCombatCost(this.actor, preset);
+    return message;
   }
 
   async _onResourceAdjust(event) {

@@ -25,6 +25,14 @@ export async function openRollDialog(actor, presets = {}) {
   });
 
   return new Promise(resolve => {
+    /**
+     * Foundry's Dialog calls the "close" option right after a button's own callback fires,
+     * without waiting for that callback's async work to finish - so close's resolve(null) can
+     * win the race against the button callback's resolve(message) if it isn't guarded. Marking
+     * `resolved` synchronously, as the very first line of the button callback (before any
+     * await), closes that race: it's set before Foundry's close() runs its finally-block check.
+     */
+    let resolved = false;
     new Dialog({
       title: `${game.i18n.localize("DNK.RollDialogTitle")}: ${flavorHint}`,
       content,
@@ -33,6 +41,7 @@ export async function openRollDialog(actor, presets = {}) {
           icon: '<i class="fas fa-dice"></i>',
           label: game.i18n.localize("DNK.Roll"),
           callback: async html => {
+            resolved = true;
             const form = html[0].querySelector("form");
             const advantage = Number(form.advantage.value) || 0;
             const disadvantage = Number(form.disadvantage.value) || 0;
@@ -46,7 +55,7 @@ export async function openRollDialog(actor, presets = {}) {
         }
       },
       default: "roll",
-      close: () => resolve(null)
+      close: () => { if (!resolved) resolve(null); }
     }).render(true);
   });
 }

@@ -1,5 +1,5 @@
 import { rollAbilityTest, spendFurrendshipOnMessage, rerollOnMessage, setBlockOnMessage, healTargetsFromMessage } from "./dice.mjs";
-import { COMBAT_PRESETS, cedeInitiative } from "./sheets/actor-sheet.mjs";
+import { COMBAT_PRESETS, cedeInitiative, canAffordCombatCost, chargeCombatCost } from "./sheets/actor-sheet.mjs";
 import { castSpellForActor } from "./spells.mjs";
 
 /**
@@ -26,6 +26,9 @@ export async function rollCombatActionForActor(actorId, presetKey, { advantage =
   const preset = COMBAT_PRESETS[presetKey];
   if (!preset) throw new Error(`Dungeons & Kittens API: unknown combat action "${presetKey}"`);
   const actor = requireActor(actorId);
+  if (!canAffordCombatCost(actor, preset)) {
+    throw new Error(`Dungeons & Kittens API: not enough Furr-endship to use "${presetKey}" (needs ${preset.furrendshipCost}).`);
+  }
   if (preset.aggressive) await cedeInitiative(actor);
   const message = await rollAbilityTest(actor, {
     ability: preset.ability,
@@ -33,6 +36,7 @@ export async function rollCombatActionForActor(actorId, presetKey, { advantage =
     advantage, disadvantage, difficulty,
     isDefend: preset.isDefend, isHeal: preset.isHeal
   });
+  await chargeCombatCost(actor, preset);
   return { messageId: message.id, roll: message.flags["dungeons-and-kittens"].roll };
 }
 

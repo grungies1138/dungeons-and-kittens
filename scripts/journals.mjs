@@ -8,7 +8,7 @@
 import { SKILLS } from "./skills.mjs";
 
 /** Bump this whenever the guide content changes so existing worlds get the refreshed pages. */
-export const GUIDE_DATA_VERSION = 5;
+export const GUIDE_DATA_VERSION = 6;
 
 function page(name, html, sort) {
   return {
@@ -183,7 +183,8 @@ const MECHANICS_GUIDE = {
       genuinely moving. Spend it in the moment: every roll's chat card has a
       <em>"Spend 1 Furr-endship"</em> button that turns one point into an automatic success (up
       to four successes this way per test), which is often the difference between failing and
-      pulling something off.</p>
+      pulling something off. It also costs 1 Furr-endship just to start a Claw Attack in the
+      Catfight tab - the sheet checks this for you and won't let the attempt through without it.</p>
     `, 300000),
 
     page("4. Skills & Calling for Advantage", `
@@ -217,7 +218,8 @@ const MECHANICS_GUIDE = {
       tab has one-click presets:</p>
       <ul>
         <li><strong>Fang Attack</strong> and <strong>Claw Attack</strong> - offensive actions;
-        successes translate into Heart damage.</li>
+        successes translate into Heart damage. Claw Attack costs 1 Furr-endship to start (the
+        sheet won't let you attempt one without enough).</li>
         <li><strong>Defend</strong> - each success cancels one success from an incoming attack.
         Click <em>"Set as Block"</em> on the chat card to lock in that many successes; the next
         <em>"Apply Heart damage"</em> click against you automatically subtracts your Block first,
@@ -247,8 +249,8 @@ const MECHANICS_GUIDE = {
         <li>Difficulty: Easy 1, Medium 2, Difficult 3, Legendary 4 successes.</li>
         <li>Three-of-a-kind on the dice = a bonus effect, win or lose.</li>
         <li>Heart max = Strong + Smart. Furr-endship max = Cute.</li>
-        <li>Spend 1 Furr-endship for +1 automatic success (max 4 per test) or to hand a Heart
-        point to a friend.</li>
+        <li>Spend 1 Furr-endship for +1 automatic success (max 4 per test), to hand a Heart
+        point to a friend, or (required) to start a Claw Attack.</li>
         <li>A trained skill grants Advantage when it applies. Toggling the Advantage/Disadvantage
         icon on a token's status effects pre-fills the roll dialog's count.</li>
         <li>A Purr-ecious item can reroll one failing die.</li>

@@ -75,6 +75,7 @@
     "SpendFurrendship": "Spend 1 Furr-endship (+1 success)",
     "UseItemReroll": "Use item (reroll a failing die)",
     "NoFurrendship": "No Furr-endship points left.",
+    "NotEnoughFurrendshipForAction": "Not enough Furr-endship for this (needs {cost}).",
     "NoFailingDie": "No failing die left to reroll.",
     "NoPurrecious": "No Purr-ecious item to reroll with.",
     "MaxFurrendshipReached": "You cannot gain more than 4 successes from Furr-endship on a single test.",

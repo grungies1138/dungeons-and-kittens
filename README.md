@@ -34,7 +34,9 @@ Set** and **Core Rulebook**.
 - **Catfights**: quick-roll buttons for Fang Attack, Claw Attack, Defend, Help, Hinder, Move, and
   Heal Ally, plus chat-card buttons to apply Heart damage to a targeted token, lock in a Defend
   roll's successes as a Block (automatically absorbed by the next hit against you), and heal a
-  targeted ally's Heart (capped at once per half-day per recipient, tracked automatically).
+  targeted ally's Heart (capped at once per half-day per recipient, tracked automatically). Claw
+  Attack costs 1 Furr-endship to start — the sheet checks and charges this automatically, and
+  refuses the attempt if you can't afford it.
 - **Out of the Scene**: a Kitten's token is automatically marked "Out of the Scene" (and its
   combatant flagged defeated, if a combat is running) the moment its Heart hits 0 — and cleared
   again once Heart rises back above 0. No manual bookkeeping.
