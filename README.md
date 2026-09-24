@@ -2,179 +2,130 @@
 
 A fan-made Foundry Virtual Tabletop system implementing the rules of **Dungeons & Kittens**,
 the cooperative animal-fantasy roleplaying game written by Trickytophe / François Cedelle
-(Studio Deadcrows) and published by EDGE Studio (Asmodee Group). This project is **not**
-affiliated with or endorsed by Asmodee, EDGE Studio, or Deadcrows Studio, and contains no
-artwork or text reproduced from their books — only an original implementation of the
-publicly documented game mechanics (the free "Game Mechanics Quick Reference" and Quickstart
-Adventure PDFs from edge-studio.net).
+(Studio Deadcrows) and published by EDGE Studio (Asmodee Group), used with the publisher's
+permission. This project is **not** affiliated with or endorsed by Asmodee, EDGE Studio, or
+Deadcrows Studio, and contains no artwork from their books. Rules are implemented from the
+**Core Rulebook**; game data (names, numbers, spell levels, item lists, tables) is carried over,
+while every description is written in this project's own words, with page references.
 
 If you enjoy the game, please support the creators by buying the **Dungeons & Kittens Starter
 Set** and **Core Rulebook**.
 
-## Mechanics implemented
+## Rules implemented
 
-- **Abilities**: Strong, Smart, Cute. Roll 3d6, each die ≤ the ability's score is a success.
-- **Advantage / Disadvantage**: roll 4d6 or 2d6 instead of 3d6 (net sources only; ties cancel
-  back to 3d6).
-- **Triples**: any test where 3+ dice show the same value gets a narrative bonus, win or lose.
-- **Difficulty**: Easy (1 success), Medium (2), Difficult (3), Legendary (4).
-- **Heart**: a Kitten's health/confidence, max = Strong + Smart. At 0 the Kitten is out of the
-  scene, never dead.
-- **Furr-endship**: morale currency, max = Cute. Spend 1 for an automatic success (max 4 per
-  test) or to hand a Heart point to a friend.
-- **Skills**: the 25 skills from the character sheet, toggled trained/untrained (skills grant
-  Advantage when relevant — call it as GM). Hover any skill, ability, resource, or backpack/
-  spellbook item on the sheet for a tooltip explaining what it does.
-- **Spellbook**: per-character "spells"/special abilities with an ability + success threshold,
-  rollable straight from the sheet. The first cast of a spell each day is free; recasting it
-  before a night's rest automatically charges its recast cost in Heart (and refuses the recast
-  if you can't afford it) — a moon icon next to a spell marks it as already cast today.
-- **Backpack**: simple gear list. A "Purr-ecious" item lets the chat card's reroll button
-  appear at all — it only shows up if the actor actually owns one.
-- **Catfights**: quick-roll buttons for Fang Attack, Claw Attack, Defend, Help, Hinder, Move, and
-  Heal Ally, plus chat-card buttons to apply Heart damage to a targeted token, lock in a Defend
-  roll's successes as a Block (automatically absorbed by the next hit against you), and heal a
-  targeted ally's Heart (capped at once per half-day per recipient, tracked automatically). Claw
-  Attack costs 1 Furr-endship to start — the sheet checks and charges this automatically, and
-  refuses the attempt if you can't afford it.
-- **Out of the Scene**: a Kitten's token is automatically marked "Out of the Scene" (and its
-  combatant flagged defeated, if a combat is running) the moment its Heart hits 0 — and cleared
-  again once Heart rises back above 0. No manual bookkeeping.
-- **Night's Rest button**: a moon icon in the Kitten sheet's own title bar (next to "Prototype
-  Token"/"Close") applies a night's rest to that one character — +1 Heart, resets the half-day
-  heal cooldown, and clears every spell's recast-used flag. Self-service for players; no GM
-  action required. For resting the whole party at once, see the GM Tools compendium below.
-- **Advantage/Disadvantage token status**: toggle these two icons on a token's status effects and
-  the roll dialog will pre-fill that count the next time you roll for that actor.
-- **Dice So Nice**: if that module is active, a "Dungeons & Kittens" colorset is registered as a
-  selectable option (never forced on anyone).
+**Rolling (pp.16, 45-52)**
+- Roll 3d6 against Strong, Smart, or Cute; each die at or under the score is a success.
+  Advantage rolls 4d6, Disadvantage 2d6; they cancel one for one.
+- Difficulty Easy 1 / Medium 2 / Difficult 3 / Legendary 4. The chat card reads the result the
+  book's way: **success**, **short of the difficulty** (the player chooses to fail cleanly or
+  succeed with a complication), or **failure** (no successes).
+- **Re-rolls stack**: click a die to pick it, then re-roll from each relevant Purr-ecious item,
+  the Cattribute (an Extra's description), or a GM-granted "good idea".
+- Triples are flagged; Furr-endship buys automatic successes (max 4 per test).
+- Advantage/Disadvantage token icons and injuries pre-fill the roll dialog, which also lets
+  Catfight actions pick among the abilities they allow.
 
-Skill descriptions are original interpretations written for this system (the publicly available
-PDFs list skill names only, not flavor text) — treat them as suggestions, not verbatim rulebook
-text, and use your own judgment or the Core Rulebook's wording at the table.
+**Kittens (pp.11-43)**
+- Creation check: 8 ability points, each 1-5, shown live on the sheet.
+- **All 18 Childhoods**: pick one from the sheet to set the Cattribute and add its five
+  Purr-ecious items (Bearcub gets seven slots). Random name and character-trait buttons use the
+  book's tables.
+- **Purr-ecious items**: every personal item is one; the backpack counts them against the
+  five-item limit (items can be marked as not taking a slot, e.g. inheritance coins).
+- **Character traits**: once per session each - "Trait helps" grants an Advantage, "Trait
+  hinders" gives a targeted comrade 1 Furr-endship.
+- **Heart & Furr-endship**: derived maximums; 0 Heart marks the token Out of the Scene
+  automatically. "Pamper a friend" trades 1 Furr-endship for 1 Heart (not during a Catfight).
+- **Experience (p.42)**: +1 per session, +1 for an adventure or goal (GM Tools macros). The
+  **Improve** button buys abilities (2 x the new level), skills (2), spells (2), and extra
+  Purr-ecious slots (4).
+
+**Meowgic (pp.37-41)**
+- All 36 spells across the six paths in a Spells compendium; the path sets the casting ability.
+- Each spell is free once a day, spent whether it works or not; recasting costs 1 Heart until
+  a night's rest (a moon icon marks spells already cast).
+- A failed cast can be **forced** with a Meowgic accident roll from the chat card.
+
+**Catfights (pp.56-60)**
+- Fang and Claw Catfights. Entering a Claw Catfight costs 1 Furr-endship **once** (Claw Attack
+  enters automatically); with none left the Kitten must flee. Ending the combat clears it.
+- Actions grouped as aggressive (Fang/Claw Attack, Hinder) and non-aggressive (Defend, Help, Move,
+  Interact, Heal Ally). Aggressive actions drop the actor below the initiative tie.
+- **Help** needs no roll: it gives the targeted comrade an Advantage. **Hinder** gives the
+  target a Disadvantage. **Defend** cancels attack successes against the defender *or comrades*
+  for the rest of the turn.
+- Concede a Fang Catfight; Flee (Smart) or Surrender (Cute) to leave a Claw Catfight.
+- A Kitten dropping to 0 Heart in a Claw Catfight rolls on the **injury table**: minor injuries
+  last until the next rest, incapacitation counts down per night's rest, major injuries and lost
+  meowgic heal when an adventure completes, and a critical injury lets the player choose which
+  ability to lose.
+
+**Extras (p.65)**: Extras have skills, spells, and Purr-ecious items like Kittens, with the
+book's tier guide on the sheet.
+
+**Also**: Heal Ally (Smart test, once per half-day per recipient), lunch and night rests,
+optional Dice So Nice colorset.
 
 ## Installation
 
-Copy this folder into your Foundry `Data/systems/dungeons-and-kittens` directory (or install
-via manifest URL if you host `system.json` somewhere), then create a world using the
+Install via the manifest URL
+`https://github.com/grungies1138/dungeons-and-kittens/releases/latest/download/system.json`,
+or copy this folder into `Data/systems/dungeons-and-kittens`, then create a world using the
 "Dungeons & Kittens" system.
 
-## Actor types
+## Compendiums
 
-- **Kitten** — full player character sheet.
-- **Extra** — a lightweight NPC sheet for the Storyteller (abilities + Heart + basic catfight
-  actions).
+Built automatically the first time a GM loads a world, and rebuilt whenever this system ships
+updated content. Look under "World" in the Compendium sidebar.
 
-## Pregenerated Kittens
+| Compendium | Contents |
+| --- | --- |
+| Pregenerated Kittens | Sparkle, Bobbin, Camilla Bellefleur, Dart, and Cheesy from the Quickstart. |
+| Player's Guide | Kitten creation (with all Childhoods and spells), rules and sheet hints, skill reference. |
+| Spells | All 36 spells, ready to drag onto a sheet. |
+| Bestiary | The Core Rulebook's named Extras (about 70), with skills, spells, and items. |
+| Tables | Character Trait, Childhood (weighted like the book), Kitten Name, Meowgic Accident, Claw Injury, and the Selene's Nightmare generator. |
+| GM Tools | Party-wide macros (below). |
+| Companion API | Macros for external tools (below). |
 
-The first time a GM loads a world using this system, it automatically creates and populates a
-world compendium called **"Dungeons & Kittens: Pregenerated Kittens"** with the five official
-ready-to-play characters from the Quickstart Adventure (Sparkle, Bobbin, Camilla Bellefleur,
-Dart, and Cheesy), stats/spells/gear included. Look for it in the Compendium sidebar tab under
-"World". If it doesn't appear, open the console (F12) and run:
+If one doesn't appear, run the matching console command, e.g.
+`await game.dnk.ensureSpellsCompendium();` (also `ensurePregenCompendium`,
+`ensureGuideCompendium`, `ensureBestiaryCompendium`, `ensureTablesCompendium`,
+`ensureGmToolsCompendium`, `ensureCompanionApiCompendium`). `await game.dnk.importPregens();`
+drops the five pregens straight into the Actors directory.
 
-```js
-await game.dnk.ensurePregenCompendium();
-```
+## GM Tools
 
-You can also skip the compendium and drop the five pregens straight into your Actors directory
-with:
-
-```js
-await game.dnk.importPregens();
-```
-
-## Player's Guide compendium
-
-Alongside the pregens, the system also auto-creates a **"Dungeons & Kittens: Player's Guide"**
-journal compendium with two entries:
-
-- **How to Create a Kitten** — a 9-page step-by-step character creation tutorial (name &
-  childhood, abilities, Heart/Furr-endship, skills, character trait & cattribute, spellbook,
-  backpack), written for this Foundry sheet specifically.
-- **Playing the Game: Mechanics & Sheet Hints** — an 8-page reference covering the core roll,
-  advantage/disadvantage/difficulty, spending Furr-endship, trained skills, casting spells,
-  Purr-ecious items, catfights, and a one-page cheat sheet.
-- **Skill Reference** — all 25 skills with a full description of what each one covers.
-
-If it doesn't appear after loading a world, run:
-
-```js
-await game.dnk.ensureGuideCompendium();
-```
-
-Both the Pregenerated Kittens and Player's Guide compendia are version-tracked: if you update
-this system and the bundled data version changes, the next world load automatically deletes and
-rebuilds the compendium contents so you get the refreshed text without doing anything by hand.
-
-## Character Tables compendium
-
-A world RollTable compendium called **"Dungeons & Kittens: Character Tables"** with three quick
-d20/d16 tables — **Childhood Idea**, **Character Trait Idea**, and **Cattribute Idea** — for a
-fast spark of inspiration during character creation. These are original homebrew suggestions
-written for this system, not a transcription of the Core Rulebook's own (longer) official lists.
-If it doesn't appear, run:
-
-```js
-await game.dnk.ensureTablesCompendium();
-```
-
-## Bestiary compendium
-
-A world Actor compendium called **"Dungeons & Kittens: Bestiary"** with five ready-to-drop-in
-"Extra" NPCs (Feral Alley Cat, Stray Hound, Marsh Hawk, River Rat Bandit, Broken Fence Boar) for
-a Storyteller who wants a quick antagonist without building one from scratch. Original content —
-no stat blocks are published in the free Quick Reference/Quickstart PDFs. If it doesn't appear,
-run:
-
-```js
-await game.dnk.ensureBestiaryCompendium();
-```
-
-## GM Tools compendium
-
-A world macro compendium called **"Dungeons & Kittens: GM Tools"** with one-click, whole-party
-actions instead of adjusting each character individually:
+Each acts on the selected tokens' actors, or every Kitten in the world if nothing is selected.
 
 | Macro | Effect |
 | --- | --- |
-| DNK: Apply Lunch Rest | +1 Heart to the party; clears everyone's half-day heal cooldown. |
-| DNK: Apply Night's Rest | +1 Heart to the party; clears the half-day heal cooldown **and** every spell's recast-used flag. |
-| DNK: Grant Party Furr-endship | +1 Furr-endship to the party (for a good evening with friends, or something genuinely moving). |
+| DNK: Apply Lunch Rest | +1 Heart; clears the half-day heal cooldown and minor injuries. |
+| DNK: Apply Night's Rest | As lunch, plus resets spells and counts down incapacitation. |
+| DNK: Grant Party Furr-endship | +1 Furr-endship (a good evening, a safe night, a moving show). |
+| DNK: End Session (+1 XP) | +1 experience; character traits can be used again. |
+| DNK: Adventure Complete (+1 XP) | +1 experience; heals adventure-long injuries and lost meowgic. |
+| DNK: Goal Reached (+1 XP) | +1 experience. |
 
-Each one acts on your currently controlled/selected tokens' actors, or on every Kitten actor in
-the world if nothing is selected. If the compendium doesn't appear, run:
-
-```js
-await game.dnk.ensureGmToolsCompendium();
-```
+Kittens also have their own **Night's Rest** button in the sheet's title bar.
 
 ## Companion API (for external tools, e.g. a mobile character-sheet app)
 
-Alongside the pregens and Player's Guide, the system auto-creates a world macro compendium called
-**"Dungeons & Kittens: Companion API"**. These are thin script macros that call straight into the
-same functions the character sheet's own buttons use (`game.dnk.api`), so an external tool that
-can execute a Foundry macro with a `scope` object — such as a REST API/relay module — can drive
-rolls and resource changes identically to using the sheet in Foundry, without reimplementing any
-game rules.
-
-Macros (each takes its arguments via the `scope` object passed to `Macro#execute(scope)`):
+Thin script macros calling the same functions as the sheet's buttons (`game.dnk.api`), so a tool
+that can execute a Foundry macro with a `scope` object can drive rolls and resources without
+reimplementing rules. Each returns a plain object or throws a localized `Error`.
 
 | Macro | `scope` fields |
 | --- | --- |
 | DNK API: Roll Ability Test | `actorId`, `ability`, `flavor?`, `advantage?`, `disadvantage?`, `difficulty?` |
-| DNK API: Roll Combat Action | `actorId`, `presetKey` (`fangAttack`/`clawAttack`/`defend`/`help`/`hinder`/`move`/`healAlly`), `advantage?`, `disadvantage?`, `difficulty?` |
+| DNK API: Roll Combat Action | `actorId`, `presetKey` (`fangAttack`/`clawAttack`/`defend`/`help`/`hinder`/`move`/`interact`/`healAlly`/`flee`/`surrender`), `ability?`, `advantage?`, `disadvantage?`, `difficulty?` |
 | DNK API: Roll Spell | `actorId`, `itemId`, `advantage?`, `disadvantage?` |
-| DNK API: Adjust Resource | `actorId`, `resource` (`heart`/`furrendship`), `delta` (negative to damage/spend) |
-| DNK API: Spend Furrendship | `messageId` (of a roll's chat card) |
-| DNK API: Reroll | `messageId` (of a roll's chat card) |
-| DNK API: Set Block | `messageId` (of a Defend roll's chat card) |
-| DNK API: Heal Targets | `messageId` (of a Heal Ally roll's chat card) |
-
-All of them return a plain-object result (or throw a localized `Error` on failure) rather than
-depending on chat/DOM, so a relay can pass the return value straight back to the calling app. If
-the compendium doesn't appear after loading a world, run:
-
-```js
-await game.dnk.ensureCompanionApiCompendium();
-```
+| DNK API: Adjust Resource | `actorId`, `resource` (`heart`/`furrendship`), `delta` |
+| DNK API: Spend Furrendship | `messageId` |
+| DNK API: Reroll | `messageId`, `source?` (`item`/`cattribute`/`idea`), `dieIndex?` |
+| DNK API: Set Block | `messageId` (a Defend roll) |
+| DNK API: Heal Targets | `messageId` (a Heal Ally roll) |
+| DNK API: Apply Hinder | `messageId` (a Hinder roll) |
+| DNK API: Force Spell (Meowgic Accident) | `messageId` (a failed spell) |
+| DNK API: Improve (Spend Experience) | `actorId`, `kind` (`ability`/`skill`/`spell`/`slot`), `key` |
+| DNK API: Set Claw Catfight | `actorId`, `inClaw` |

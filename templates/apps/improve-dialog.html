@@ -1,0 +1,37 @@
+<div class="dnk-improve">
+  <p class="hint">{{localize "DNK.XPAvailable"}}: <strong>{{current}}</strong></p>
+
+  <h4>{{localize "DNK.Abilities"}}</h4>
+  {{#each abilities}}
+    <div class="improve-row">
+      <span>{{this.label}}</span>
+      {{#if this.maxed}}
+        <span class="hint">{{localize "DNK.Maxed"}}</span>
+      {{else}}
+        <button type="button" data-buy="ability" data-key="{{this.key}}">{{this.cost}} XP</button>
+      {{/if}}
+    </div>
+  {{/each}}
+
+  <h4>{{localize "DNK.LearnSkill"}}</h4>
+  <div class="improve-row">
+    <select name="skill">
+      {{#each skills}}<option value="{{this.key}}">{{this.label}}</option>{{/each}}
+    </select>
+    <button type="button" data-buy="skill">{{costs.skill}} XP</button>
+  </div>
+
+  <h4>{{localize "DNK.LearnSpell"}}</h4>
+  <div class="improve-row">
+    <select name="spell">
+      {{#each spells}}<option value="{{this.key}}">{{this.label}}</option>{{/each}}
+    </select>
+    <button type="button" data-buy="spell">{{costs.spell}} XP</button>
+  </div>
+
+  <h4>{{localize "DNK.PurreciousSlot"}}</h4>
+  <div class="improve-row">
+    <span>{{localize "DNK.CurrentSlots"}}: {{slots}}</span>
+    <button type="button" data-buy="slot">{{slotCost}} XP</button>
+  </div>
+</div>

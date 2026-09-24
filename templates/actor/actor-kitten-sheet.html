@@ -8,14 +8,21 @@
     <div class="header-fields">
       <div class="name-plate">
         <input class="kitten-name" type="text" name="name" value="{{actor.name}}" placeholder="Kitten name"/>
+        <a class="random-name" data-tooltip="{{localize 'DNK.RandomName'}}"><i class="fas fa-dice"></i></a>
       </div>
       <div class="detail-grid">
         <label>{{localize "DNK.Player"}}</label>
         <input type="text" name="system.details.player" value="{{system.details.player}}"/>
         <label>{{localize "DNK.Childhood"}}</label>
-        <input type="text" name="system.details.childhood" value="{{system.details.childhood}}"/>
+        <div class="field-with-button">
+          <input type="text" name="system.details.childhood" value="{{system.details.childhood}}"/>
+          <a class="choose-childhood" data-tooltip="{{localize 'DNK.ChooseChildhood'}}"><i class="fas fa-book-open"></i></a>
+        </div>
         <label data-tooltip="{{localize 'DNK.CharacterTraitTooltip'}}">{{localize "DNK.CharacterTrait"}}</label>
-        <input type="text" name="system.details.characterTrait.name" value="{{system.details.characterTrait.name}}"/>
+        <div class="field-with-button">
+          <input type="text" name="system.details.characterTrait.name" value="{{system.details.characterTrait.name}}"/>
+          <a class="random-trait" data-tooltip="{{localize 'DNK.RandomTrait'}}"><i class="fas fa-dice"></i></a>
+        </div>
         <label data-tooltip="{{localize 'DNK.CattributeTooltip'}}">{{localize "DNK.Cattribute"}}</label>
         <input type="text" name="system.details.cattribute.name" value="{{system.details.cattribute.name}}"/>
       </div>
@@ -77,13 +84,29 @@
     </div>
 
     <div class="xp-plate">
-      <label>{{localize "DNK.Experience"}}</label>
+      <label data-tooltip="{{localize 'DNK.ExperienceTooltip'}}">{{localize "DNK.Experience"}}</label>
       <div class="resource-controls">
-        <input class="xp" type="number" name="system.experience.current" value="{{system.experience.current}}" data-dtype="Number"/>
+        <input class="xp" type="number" name="system.experience.current" value="{{system.experience.current}}" data-dtype="Number" title="{{localize 'DNK.XPCurrent'}}"/>
         <span class="max">/</span>
-        <input class="xp" type="number" name="system.experience.total" value="{{system.experience.total}}" data-dtype="Number"/>
+        <input class="xp" type="number" name="system.experience.total" value="{{system.experience.total}}" data-dtype="Number" title="{{localize 'DNK.XPTotal'}}"/>
       </div>
+      <button type="button" class="improve"><i class="fas fa-arrow-up"></i> {{localize "DNK.Improve"}}</button>
     </div>
+  </section>
+
+  <section class="kitten-toolbar">
+    <span class="creation-check {{#if creation.ok}}ok{{else}}off{{/if}}" data-tooltip="{{localize 'DNK.CreationTooltip'}}">
+      {{localize "DNK.AbilityPoints"}}: {{creation.spent}} / {{creation.target}}{{#if creation.outOfRange}} ({{localize "DNK.AbilityRange"}}){{/if}}
+    </span>
+    <button type="button" class="trait-use" data-mode="positive" {{#if traitPositiveUsed}}disabled{{/if}} data-tooltip="{{localize 'DNK.TraitPositiveTooltip'}}">
+      <i class="fas fa-thumbs-up"></i> {{localize "DNK.TraitPositiveButton"}}
+    </button>
+    <button type="button" class="trait-use" data-mode="negative" {{#if traitNegativeUsed}}disabled{{/if}} data-tooltip="{{localize 'DNK.TraitNegativeTooltip'}}">
+      <i class="fas fa-thumbs-down"></i> {{localize "DNK.TraitNegativeButton"}}
+    </button>
+    <button type="button" class="pamper" data-tooltip="{{localize 'DNK.PamperTooltip'}}">
+      <i class="fas fa-hand-holding-heart"></i> {{localize "DNK.Pamper"}}
+    </button>
   </section>
 
   <nav class="sheet-tabs" data-group="primary">
@@ -95,76 +118,15 @@
   </nav>
 
   <section class="sheet-body">
-
-    <div class="tab skills-list parchment-panel" data-group="primary" data-tab="skills">
-      {{#each skills}}
-        <label class="skill-row" data-tooltip="{{this.description}}">
-          <input type="checkbox" name="system.skills.{{this.key}}.trained" {{#if this.trained}}checked{{/if}}/>
-          <span>{{this.label}}</span>
-        </label>
-      {{/each}}
-    </div>
-
-    <div class="tab spellbook-list notebook-panel" data-group="primary" data-tab="spellbook">
-      <ol class="item-list">
-        {{#each spells}}
-          <li class="item-row" data-item-id="{{this.id}}">
-            <span class="item-name" data-tooltip="{{this.system.description}}">{{this.name}}{{#if this.usedToday}} <i class="fas fa-moon" title="{{localize 'DNK.SpellUsedToday'}}"></i>{{/if}}</span>
-            <span class="item-detail">{{this.system.ability}} / {{this.system.successes}} succ.</span>
-            <span class="item-controls">
-              <a class="item-roll" title="{{localize 'DNK.Roll'}}"><i class="fas fa-dice-d6"></i></a>
-              <a class="item-edit" title="{{localize 'DNK.Edit'}}"><i class="fas fa-edit"></i></a>
-              <a class="item-delete" title="{{localize 'DNK.Delete'}}"><i class="fas fa-trash"></i></a>
-            </span>
-          </li>
-        {{/each}}
-      </ol>
-      <button type="button" class="item-create" data-type="spell"><i class="fas fa-plus"></i> {{localize "DNK.AddSpell"}}</button>
-    </div>
-
-    <div class="tab backpack-list pouch-panel" data-group="primary" data-tab="backpack">
-      <ol class="item-list">
-        {{#each gear}}
-          <li class="item-row" data-item-id="{{this.id}}">
-            <span class="item-name" data-tooltip="{{this.system.description}}">{{this.name}}{{#if this.system.purrecious}} <i class="fas fa-paw" title="{{localize 'DNK.Purrecious'}}"></i>{{/if}}</span>
-            <span class="item-detail">x{{this.system.quantity}}</span>
-            <span class="item-controls">
-              <a class="item-edit" title="{{localize 'DNK.Edit'}}"><i class="fas fa-edit"></i></a>
-              <a class="item-delete" title="{{localize 'DNK.Delete'}}"><i class="fas fa-trash"></i></a>
-            </span>
-          </li>
-        {{/each}}
-      </ol>
-      <button type="button" class="item-create" data-type="gear"><i class="fas fa-plus"></i> {{localize "DNK.AddGear"}}</button>
-    </div>
-
-    <div class="tab combat-actions parchment-panel" data-group="primary" data-tab="combat">
-      <div class="combat-grid">
-        <button type="button" class="combat-action" data-action="fangAttack" data-tooltip="Strong or Cute + any helpful skill. Successes deal Heart damage.">{{localize "DNK.FangAttack"}}</button>
-        <button type="button" class="combat-action" data-action="clawAttack" data-tooltip="Strong or Smart + Scratch + a weapon reroll. Costs 1 Furr-endship to start. Successes deal Heart damage.">{{localize "DNK.ClawAttack"}}</button>
-        <button type="button" class="combat-action" data-action="defend" data-tooltip="Strong or Smart + Keep Calm & Carry On/Shake Your Booty. Each success cancels 1 opponent success.">{{localize "DNK.Defend"}}</button>
-        <button type="button" class="combat-action" data-action="help" data-tooltip="Grant an ally Advantage on their next action.">{{localize "DNK.Help"}}</button>
-        <button type="button" class="combat-action" data-action="hinder" data-tooltip="Saddle an opponent with Disadvantage on their next action.">{{localize "DNK.Hinder"}}</button>
-        <button type="button" class="combat-action" data-action="move" data-tooltip="Reposition, with a Strong/Smart test if it's risky.">{{localize "DNK.Move"}}</button>
-        <button type="button" class="combat-action" data-action="healAlly" data-tooltip="A successful Smart test heals 1 Heart on a targeted ally - once per half-day per recipient.">{{localize "DNK.HealAlly"}}</button>
-      </div>
-      <p class="hint">
-        Fang: Strong or Cute + a helpful skill. Claw: Strong or Smart + Scratch + a weapon
-        (costs 1 Furr-endship to start). Attacks deal 1 Heart damage per success to a targeted
-        token (use the chat card button).
-        Defend's successes can be locked in as a Block on the chat card, cancelling that many
-        points off the next hit against you. Kittens keep the initiative unless attacking.
-      </p>
-    </div>
+    {{> "systems/dungeons-and-kittens/templates/actor/parts/actor-tabs.html"}}
 
     <div class="tab story-tab parchment-panel" data-group="primary" data-tab="story">
       <label>{{localize "DNK.CharacterTrait"}}</label>
       <textarea name="system.details.characterTrait.description" rows="2">{{system.details.characterTrait.description}}</textarea>
       <label>{{localize "DNK.Cattribute"}}</label>
-      <textarea name="system.details.cattribute.description" rows="2">{{system.details.cattribute.description}}</textarea>
+      <textarea name="system.details.cattribute.description" rows="3">{{system.details.cattribute.description}}</textarea>
       <label>{{localize "DNK.Biography"}}</label>
       <textarea name="system.biography" rows="10">{{system.biography}}</textarea>
     </div>
-
   </section>
 </form>

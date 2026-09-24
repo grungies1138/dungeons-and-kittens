@@ -8,14 +8,16 @@
     </div>
   </header>
 
-  <div class="dnk-dice-row">
+  <div class="dnk-dice-row" data-tooltip="{{localize 'DNK.SelectDieHint'}}">
     {{#each results}}
-      <span class="die {{#if (lte this ../abilityValue)}}success{{else}}fail{{/if}}">{{this}}</span>
+      <span class="die {{#if (lte this ../abilityValue)}}success{{else}}fail{{/if}}" data-index="{{@index}}">
+        <i class="fas {{#if (lte this ../abilityValue)}}fa-check{{else}}fa-xmark{{/if}} die-mark"></i>{{this}}
+      </span>
     {{/each}}
   </div>
 
   {{#if triple}}
-    <div class="dnk-triple">🐾 {{localize "DNK.Triple"}} <span class="hint">{{localize "DNK.TripleHint"}}</span></div>
+    <div class="dnk-triple"><i class="fas fa-paw"></i> {{localize "DNK.Triple"}} <span class="hint">{{localize "DNK.TripleHint"}}</span></div>
   {{/if}}
 
   <div class="dnk-result">
@@ -28,29 +30,47 @@
         <span class="label">{{localize "DNK.Difficulty"}}</span>
         <span class="value">{{difficultyLabel}}</span>
       </div>
+    {{/if}}
+    {{#if outcomeLabel}}
       <div class="result-row">
         <span class="label">{{localize "DNK.Result"}}</span>
-        {{#if passed}}
-          <span class="value outcome pass">{{localize "DNK.PassedDifficulty"}}</span>
-        {{else}}
-          <span class="value outcome fail">{{localize "DNK.FailedDifficulty"}}</span>
-        {{/if}}
+        <span class="value outcome {{outcome}}">{{outcomeLabel}}</span>
       </div>
+      <div class="outcome-hint">{{outcomeHint}}</div>
     {{/if}}
   </div>
+
+  {{#if accident}}
+    <div class="dnk-accident">
+      <strong>{{localize "DNK.MeowgicAccident"}} ({{accident.roll}})</strong>
+      <span>{{accident.text}}</span>
+    </div>
+  {{/if}}
 
   <div class="dnk-chat-actions">
     {{#if canSpendFurrendship}}
       <button class="dnk-spend-furrendship" type="button">{{localize "DNK.SpendFurrendship"}}</button>
     {{/if}}
-    {{#if canReroll}}
-      <button class="dnk-reroll" type="button">{{localize "DNK.UseItemReroll"}}</button>
+    {{#if canRerollItem}}
+      <button class="dnk-reroll" type="button" data-source="item">{{localize "DNK.RerollItem"}}</button>
+    {{/if}}
+    {{#if canRerollCattribute}}
+      <button class="dnk-reroll" type="button" data-source="cattribute">{{cattributeLabel}}</button>
+    {{/if}}
+    {{#if canRerollIdea}}
+      <button class="dnk-reroll" type="button" data-source="idea">{{localize "DNK.RerollIdea"}}</button>
+    {{/if}}
+    {{#if canForceSpell}}
+      <button class="dnk-force-spell" type="button">{{localize "DNK.ForceSpell"}}</button>
     {{/if}}
     {{#if canSetBlock}}
       <button class="dnk-set-block" type="button">{{localize "DNK.SetAsBlock"}}</button>
     {{/if}}
     {{#if canHealTarget}}
       <button class="dnk-heal-target" type="button">{{localize "DNK.HealTarget"}}</button>
+    {{/if}}
+    {{#if canApplyHinder}}
+      <button class="dnk-apply-hinder" type="button">{{localize "DNK.ApplyHinder"}}</button>
     {{/if}}
     <button class="dnk-apply-damage" type="button" data-amount="{{successes}}">{{localize "DNK.ApplyDamage"}} ({{successes}})</button>
   </div>

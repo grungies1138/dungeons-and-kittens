@@ -1,329 +1,185 @@
 /**
- * In-system guide journals: a step-by-step character creation tutorial, a mechanics/sheet hint
- * reference, and a full skill reference. Written in original wording based on the publicly
- * available Game Mechanics Quick Reference and Quickstart Adventure PDFs - no text is copied
- * from the books.
+ * In-system guide journals: character creation, the rules and how the sheet automates them,
+ * Catfights, and a skill reference. Written in this project's own words with page references to
+ * the Dungeons & Kittens Core Rulebook - no rulebook text is copied.
  */
 
 import { SKILLS } from "./skills.mjs";
+import { CHILDHOODS, CHILDHOOD_CATEGORIES, SPELLS, SPELL_PATHS, MEOWGIC_ACCIDENTS, CLAW_INJURIES } from "./content.mjs";
+import { ensureWorldPack } from "./packs.mjs";
 
 /** Bump this whenever the guide content changes so existing worlds get the refreshed pages. */
-export const GUIDE_DATA_VERSION = 6;
+export const GUIDE_DATA_VERSION = 7;
 
 function page(name, html, sort) {
+  return { name, type: "text", title: { show: true, level: 2 }, text: { format: 1, content: html }, sort };
+}
+
+function pages(entries) {
+  return entries.map(([name, html], i) => page(name, html, (i + 1) * 100000));
+}
+
+function childhoodList() {
+  return Object.entries(CHILDHOOD_CATEGORIES).map(([key, label]) => `
+    <h3>${label}</h3>
+    <ul>${CHILDHOODS.filter(c => c.category === key).map(c =>
+      `<li><strong>${c.name}</strong> - ${c.cattribute}. ${c.cattributeText}</li>`).join("")}</ul>`).join("");
+}
+
+function spellList() {
+  return Object.entries(SPELL_PATHS).map(([key, path]) => `
+    <h3>${path.label} (${game.i18n.localize(`DNK.Ability${path.ability.charAt(0).toUpperCase()}${path.ability.slice(1)}`)})</h3>
+    <ul>${SPELLS.filter(s => s.path === key).map(s => `<li><strong>${s.name}</strong> (${s.level}) - ${s.description}</li>`).join("")}</ul>`).join("");
+}
+
+function creationGuide() {
   return {
-    name,
-    type: "text",
-    title: { show: true, level: 2 },
-    text: { format: 1, content: html },
-    sort
+    name: "How to Create a Kitten",
+    pages: pages([
+      ["1. Before You Start", `
+        <p>You play a young exile trying to make a life on the road. Nobody wins or loses, and a
+        Kitten can't die except in the rarest circumstances. Building one takes about ten
+        minutes - or grab a ready-made Kitten from the <em>Pregenerated Kittens</em> compendium.</p>
+        <p>Talk with your Storyteller about the group first: Kittens of the Kingdom are the simplest
+        choice, and the book suggests at most one Odd One Out and one Other Animal per group (p.14).</p>`],
+      ["2. Name & Childhood", `
+        <p>Pick a name (the dice icon beside the name rolls one from the book's list), then a
+        <strong>Childhood</strong>. Click the book icon beside the Childhood field to choose one of the
+        18 - it fills in the Cattribute and adds the five Purr-ecious items that childhood starts
+        with. The <em>Tables</em> compendium can roll one with the book's odds.</p>
+        ${childhoodList()}`],
+      ["3. Abilities", `
+        <p>Split <strong>8 points</strong> across Strong, Smart, and Cute, each between 1 and 5
+        (p.14). The sheet shows your running total next to the character-trait buttons and turns
+        green when it adds up.</p>
+        <ul><li><strong>Strong</strong> - bold, physical, brave.</li>
+        <li><strong>Smart</strong> - resourceful, knowledgeable, level-headed.</li>
+        <li><strong>Cute</strong> - charming, diplomatic, persuasive.</li></ul>`],
+      ["4. Heart & Furr-endship", `
+        <p>These fill themselves in: <strong>Heart</strong> maximum is Strong + Smart, and
+        <strong>Furr-endship</strong> maximum is Cute.</p>`],
+      ["5. Two Skills", `
+        <p>Tick two skills your Kitten picked up growing up. A skill has no score - when it helps
+        with an action, you roll with an Advantage.</p>`],
+      ["6. Two Spells", `
+        <p>Every Kitten knows two spells from any path and any level (a Meowge's spellbook adds two
+        more). Drag them from the <em>Spells</em> compendium onto the sheet. The full list:</p>
+        ${spellList()}`],
+      ["7. Backpack", `
+        <p>Everyone carries the same everyday supplies - blanket, pen-knife, spoon, cooking pot,
+        flask, tinderbox, candle stubs, soap, brush, kittysnacks - plus <strong>five Purr-ecious
+        items</strong> from their childhood. Five is the limit (a Bearcub carries seven, and
+        experience can buy more slots); the Backpack tab counts them for you. Purr-ecious items can
+        be sold for about half a gold coin, bought for about one, swapped, lent, or left behind.</p>`],
+      ["8. Character Trait", `
+        <p>Pick a trait or roll one (the dice icon by the field uses the book's table). Once per
+        session each: play it helpfully for an Advantage ("Trait helps"), or let it cause trouble so
+        a targeted comrade recovers 1 Furr-endship ("Trait hinders").</p>`]
+    ])
   };
 }
 
-const CREATION_GUIDE = {
-  name: "How to Create a Kitten",
-  folder: null,
-  pages: [
-    page("1. Before You Start", `
-      <p>Dungeons &amp; Kittens is played by a small group of exiled Kittens trying to find their
-      way home. Nobody at the table is trying to "win" - you're all telling one story together,
-      and your Kitten <strong>cannot die</strong>. Character creation is meant to be quick: you
-      can build one in about ten minutes, or grab one of the five ready-to-play Kittens from the
-      <em>Pregenerated Kittens</em> compendium if you'd rather jump straight into play.</p>
-      <p>To make a new one, create an Actor of type <strong>Kitten</strong> and work through the
-      steps below - each one lines up with a section of the sheet.</p>
-    `, 100000),
-
-    page("2. Name & Childhood", `
-      <p>Give your Kitten a name, then pick a <strong>Childhood</strong> - a one- or two-word
-      idea of where they came from and what shaped them before the exile. It goes in the
-      Childhood field at the top of the sheet and mostly matters for roleplaying and for the
-      Storyteller to hang details on.</p>
-      <p>A few examples drawn from the official ready-to-play Kittens: <em>Country Kitten</em>,
-      <em>Young Noble</em>, <em>Meowge</em> (a young student of meowgic), <em>Soldier's Child</em>,
-      and <em>Catnut</em> (raised wild in the woods). The Core Rulebook has a much longer list to
-      pick from if you want more options - ask your Storyteller, or open the <em>Character
-      Tables</em> compendium and roll on "Childhood Idea" for a quick spark of inspiration
-      (original homebrew ideas, not an official list).</p>
-    `, 200000),
-
-    page("3. Abilities: Strong, Smart, Cute", `
-      <p>Every Kitten has three abilities, each rated on a d6 scale: <strong>Strong</strong>
-      (muscle and grit), <strong>Smart</strong> (wits and knowledge), and <strong>Cute</strong>
-      (charm and heart). When you test one, you roll 3d6 and count how many dice land at or
-      below that ability's score - each one is a success.</p>
-      <p><strong>Quick way to assign scores:</strong> every one of the five official
-      ready-to-play Kittens splits their three abilities as <strong>5 / 2 / 1</strong> - a high
-      score in the thing they're best at, a modest secondary, and a weak spot. That's a fast,
-      table-tested starting point: decide what your Kitten leans on most (put the 5 there), what
-      they're passable at (the 2), and what trips them up (the 1). If your table is using a
-      different point-buy or rolling method from the Core Rulebook, follow that instead - this is
-      just a reliable default if you want to start playing immediately.</p>
-      <p>Enter the three values in the Abilities row on the sheet; the dice buttons next to each
-      one roll a test for you.</p>
-    `, 300000),
-
-    page("4. Heart & Furr-endship", `
-      <p>These two resources are calculated for you - you don't need to choose them:</p>
-      <ul>
-        <li><strong>Heart</strong> (health and confidence) automatically maxes out at
-        Strong + Smart.</li>
-        <li><strong>Furr-endship</strong> (morale, spent to help yourself or a friend)
-        automatically maxes out at your Cute score.</li>
-      </ul>
-      <p>The sheet keeps both maximums in sync as you change your abilities, so just fill in
-      Strong/Smart/Cute first and these fall into place.</p>
-    `, 400000),
-
-    page("5. Pick Two Skills", `
-      <p>The Skills tab lists 25 areas of know-how, from <em>Hide in Shadows</em> to
-      <em>Tinker with Bits &amp; Bobs</em>. Every one of the official ready-to-play Kittens starts
-      trained in exactly <strong>two</strong> skills that fit their concept - for example a
-      country Kitten trained in <em>Find Your Way</em> and <em>Hunter-Gatherer</em>, or a noble
-      trained in <em>Move Silently</em> and <em>Seduce &amp; Charm</em>.</p>
-      <p>Pick two that fit your Kitten's Childhood and personality, and check their boxes.
-      A trained skill gives you an Advantage (roll 4d6 instead of 3d6) whenever your Storyteller
-      agrees it applies to what you're attempting.</p>
-    `, 500000),
-
-    page("6. Character Trait & Cattribute", `
-      <p>Two more things make your Kitten unique:</p>
-      <ul>
-        <li>A short <strong>Character Trait</strong> - one word or a short phrase describing a
-        strong part of your Kitten's personality (Brave, Grouchy, Stubborn, Shy, Funny...). When
-        you lean into it helpfully, you get an Advantage; when you play it against yourself in a
-        way that complicates the scene, you give a Furr-endship point to a comrade (once per
-        session).</li>
-        <li>A unique <strong>Cattribute</strong> - a special narrative feature nobody else has.
-        The five official Kittens use: a ghostly <em>Mystic Mentor</em>, a loyal
-        <em>Animal Companion</em>, a mysterious <em>Inheritance</em>, a famous <em>Heroic
-        Lineage</em>, and the gift of <em>Disguise</em>. Write your own, or reuse one of these
-        (or roll on the <em>Character Tables</em> compendium's "Cattribute Idea" table for more
-        homebrew sparks) as inspiration, and describe it in the Story tab.</li>
-      </ul>
-    `, 600000),
-
-    page("7. Spellbook (Two Starting Entries)", `
-      <p>"Spellbook" isn't only for wizardly Kittens - it's the place for any special ability
-      your Kitten has picked up, meowgical or not. Each of the official Kittens starts with
-      exactly <strong>two</strong> spellbook entries, each one tied to an ability and a number of
-      successes needed to pull it off (1 is easy, up to 4 for something legendary).</p>
-      <p>Some real examples: <em>Slipper Patrol</em> (Strong, 1 success) lets the group travel all
-      day without sore paws; <em>Quick as a Flash</em> (Smart, 2 successes) lets you run circles
-      around trouble; <em>Care</em> (Cute, 3 successes) turns a single Furr-endship point into
-      healing for the whole group at once. Add two entries in the Spellbook tab that fit your
-      Kitten's Childhood and Cattribute, name them, and write a line or two describing what
-      happens on a success.</p>
-    `, 700000),
-
-    page("8. Backpack", `
-      <p>Every Kitten leaves home with the same small bundle of everyday supplies: a wooly
-      blanket, a penknife, a wooden spoon, a small cooking pot, a large leather flask, a
-      tinderbox, candle stubs, a bar of soap, a fur brush, and a bag of kittysnacks. That's
-      already included as a "Common Supplies" entry when you use a pregenerated Kitten as a
-      template - otherwise just add it yourself in the Backpack tab.</p>
-      <p>Then add three to five personal items that say something about your Kitten - a
-      keepsake, a tool, something a little strange. If an item would be especially useful in a
-      pinch, mark it <strong>Purr-ecious</strong>: once per relevant test it can reroll one die
-      that didn't go your way.</p>
-    `, 800000),
-
-    page("9. You're Ready!", `
-      <p>Fill in a few lines in the Story tab about who your Kitten is and how they know the
-      others, and you're done. If you'd rather skip all of this, open the <em>Pregenerated
-      Kittens</em> compendium and drag one straight onto the scene - each one is fully built with
-      abilities, skills, spells, and gear already filled in.</p>
-      <p>See the companion journal <strong>"Playing the Game: Mechanics &amp; Sheet Hints"</strong>
-      for how to actually use the sheet once play begins.</p>
-    `, 900000)
-  ]
-};
-
-const MECHANICS_GUIDE = {
-  name: "Playing the Game: Mechanics & Sheet Hints",
-  folder: null,
-  pages: [
-    page("1. The Core Roll", `
-      <p>Whenever an action might fail and matters to the story, roll an ability test: 3d6,
-      counting every die that lands at or below the ability's score as a success. More successes
-      mean a better outcome. Click the small die icon next to Strong, Smart, or Cute on the sheet
-      to open the roll dialog and do this automatically.</p>
-      <p><strong>Triples:</strong> if three (or more) of the dice you rolled show the same number,
-      something extra happens for your Kitten - a little bonus, or a softer failure - regardless
-      of whether the test itself succeeded. The chat card flags this for you automatically.</p>
-    `, 100000),
-
-    page("2. Advantage, Disadvantage & Difficulty", `
-      <p>The roll dialog that opens when you click an ability lets you set:</p>
-      <ul>
-        <li><strong>Advantage</strong> sources (a trained skill, a clever plan, good
-        circumstances) - roll 4d6 instead of 3d6.</li>
-        <li><strong>Disadvantage</strong> sources (bad footing, an angry crowd, exhaustion) - roll
-        2d6 instead of 3d6.</li>
-        <li><strong>Difficulty</strong> - how many successes the Storyteller has decided the task
-        needs: Easy (1), Medium (2), Difficult (3), or Legendary (4). Leave it on "None" for a
-        test where you're just comparing successes narratively.</li>
-      </ul>
-      <p>Stacking multiple advantages doesn't roll more than 4 dice, and multiple disadvantages
-      never drop below 2 - and if you have both, they cancel each other out down to a plain 3d6.
-      The dialog does this math for you; just enter how many of each apply.</p>
-    `, 200000),
-
-    page("3. Heart & Furr-endship in Play", `
-      <p>Both resources live in the header of the sheet with +/- buttons for quick adjustments
-      in play.</p>
-      <p><strong>Heart</strong> drops when your Kitten is hurt, scared, or worn down, and comes
-      back with rest, a meal, or a friend's care. At 0, your Kitten sits out the rest of the
-      scene rather than being hurt further - they're never in danger of dying (the system marks
-      them "Out of the Scene" automatically). Click the moon icon (<strong>"Night's Rest"</strong>)
-      in your sheet's title bar at the end of a session or scene for +1 Heart and to reset your
-      spell recasts and healing cooldown for the next day.</p>
-      <p><strong>Furr-endship</strong> doesn't refill automatically - your Kitten earns it back
-      through a good night's rest somewhere safe, a warm evening with friends, or something
-      genuinely moving. Spend it in the moment: every roll's chat card has a
-      <em>"Spend 1 Furr-endship"</em> button that turns one point into an automatic success (up
-      to four successes this way per test), which is often the difference between failing and
-      pulling something off. It also costs 1 Furr-endship just to start a Claw Attack in the
-      Catfight tab - the sheet checks this for you and won't let the attempt through without it.</p>
-    `, 300000),
-
-    page("4. Skills & Calling for Advantage", `
-      <p>Skills aren't rolled on their own - they simply grant Advantage on an ability test when
-      the Storyteller agrees they're relevant. If your Kitten is trained in <em>Hide in
-      Shadows</em> and tries to sneak past a guard, ask for the Advantage before rolling Strong or
-      Smart, then add it in the roll dialog.</p>
-    `, 400000),
-
-    page("5. Spellbook in Play", `
-      <p>Each entry in the Spellbook tab already knows its own ability and success threshold -
-      just click the die icon on that row to roll it as a difficulty-gated test automatically.
-      The <strong>first cast of each spell "today" is free</strong>; casting the same one again
-      before your next night's rest automatically charges its recast cost in Heart (shown on the
-      item) - the sheet handles this for you, including refusing the recast if you don't have
-      enough Heart to pay it. A little moon icon next to a spell's name means it's already been
-      cast today. A GM's "DNK: Apply Night's Rest" macro (see the <em>GM Tools</em> compendium)
-      clears every character's recast flags at once.</p>
-    `, 500000),
-
-    page("6. Backpack & Purr-ecious Items", `
-      <p>Ordinary backpack items are mostly for flavor and roleplaying leverage - a good excuse
-      the Storyteller can reward. A <strong>Purr-ecious</strong> item is mechanically useful: after
-      any roll where it would help, the chat card's <em>"Use item (reroll a failing die)"</em>
-      button lets you reroll one die you didn't like - it only appears if your Kitten actually
-      owns a Purr-ecious item, and only once per roll where a failing die exists.</p>
-    `, 600000),
-
-    page("7. Catfights", `
-      <p>Combat in Dungeons &amp; Kittens is quick and rarely fatal. The Kitten sheet's Catfight
-      tab has one-click presets:</p>
-      <ul>
-        <li><strong>Fang Attack</strong> and <strong>Claw Attack</strong> - offensive actions;
-        successes translate into Heart damage. Claw Attack costs 1 Furr-endship to start (the
-        sheet won't let you attempt one without enough).</li>
-        <li><strong>Defend</strong> - each success cancels one success from an incoming attack.
-        Click <em>"Set as Block"</em> on the chat card to lock in that many successes; the next
-        <em>"Apply Heart damage"</em> click against you automatically subtracts your Block first,
-        then spends it.</li>
-        <li><strong>Help</strong> - grants an ally Advantage on their next action.</li>
-        <li><strong>Hinder</strong> - saddles an opponent with Disadvantage.</li>
-        <li><strong>Move</strong> - repositioning, sometimes with a Strong or Smart test if it's
-        risky.</li>
-        <li><strong>Heal Ally</strong> - a Smart test; on a success, target the ally and click
-        <em>"Heal target(s)"</em> to give them 1 Heart. Capped at once per half-day per recipient -
-        the sheet tracks this and warns you if someone's already been healed that way. A GM's
-        "DNK: Apply Lunch Rest" / "Apply Night's Rest" macros (<em>GM Tools</em> compendium) clear
-        that cooldown for the whole party at once, along with the party's own Heart regain.</li>
-      </ul>
-      <p>Kittens keep the initiative as long as they aren't the ones attacking. After an attack
-      roll, target the enemy token and use the <em>"Apply Heart damage to target(s)"</em> button
-      on the chat card - it subtracts the successes rolled straight from the target's Heart (minus
-      any Block they've set). If that drops a token's Heart to 0, the system automatically marks
-      them "Out of the Scene" (and defeated on the combat tracker, if one's running) - never a
-      manual step.</p>
-    `, 700000),
-
-    page("8. Quick Reference", `
-      <ul>
-        <li>Roll 3d6 (or 4d6 with Advantage / 2d6 with Disadvantage); each die at or under the
-        ability score is a success.</li>
-        <li>Difficulty: Easy 1, Medium 2, Difficult 3, Legendary 4 successes.</li>
-        <li>Three-of-a-kind on the dice = a bonus effect, win or lose.</li>
-        <li>Heart max = Strong + Smart. Furr-endship max = Cute.</li>
-        <li>Spend 1 Furr-endship for +1 automatic success (max 4 per test), to hand a Heart
-        point to a friend, or (required) to start a Claw Attack.</li>
-        <li>A trained skill grants Advantage when it applies. Toggling the Advantage/Disadvantage
-        icon on a token's status effects pre-fills the roll dialog's count.</li>
-        <li>A Purr-ecious item can reroll one failing die.</li>
-        <li>Attacks deal Heart damage equal to successes (minus a defender's Block); Kittens are
-        never at risk of dying - Heart hitting 0 auto-marks them Out of the Scene.</li>
-        <li>A spell's first cast each day is free; recasting before a night's rest auto-charges
-        its Heart cost.</li>
-        <li>Click the moon icon in your own sheet's title bar for a self-service Night's Rest
-        (+1 Heart, resets recasts/healing cooldown). GM Tools compendium: one-click Lunch Rest,
-        Night's Rest, and Grant Party Furr-endship macros for the whole party at once.</li>
-      </ul>
-    `, 800000)
-  ]
-};
-
-/**
- * Build the "Skill Reference" journal entry. Deferred to a function (rather than a static
- * const) because it reads skill names/descriptions through game.i18n, which isn't ready at
- * module-evaluation time - this is only called from ensureGuideCompendium(), during the
- * "ready" hook.
- */
-function buildSkillReferenceGuide() {
-  const intro = `
-    <p>Skills aren't rolled on their own - each one simply grants Advantage on an ability test
-    when your Storyteller agrees it's relevant to what you're attempting. Here's what each of
-    the 25 skills covers:</p>
-  `;
-  const entries = SKILLS.map(key => {
-    const label = game.i18n.localize(`DNK.Skill.${key}`);
-    const description = game.i18n.localize(`DNK.SkillDescription.${key}`);
-    return `<h3>${label}</h3><p>${description}</p>`;
-  }).join("\n");
-
+function rulesGuide() {
+  const accidents = MEOWGIC_ACCIDENTS.map(a => `<li><strong>${a.roll}</strong> - ${a.text}</li>`).join("");
+  const injuries = CLAW_INJURIES.map(i => `<li><strong>${i.roll}. ${i.name}</strong> - ${i.text}</li>`).join("");
   return {
-    name: "Skill Reference",
-    folder: null,
-    pages: [page("All 25 Skills", intro + entries, 100000)]
+    name: "Playing the Game: Rules & Sheet Hints",
+    pages: pages([
+      ["1. Rolling", `
+        <p>Roll 3d6 against the ability the Storyteller names; every die at or under the score is a
+        success (p.16). An <strong>Advantage</strong> rolls 4d6, a <strong>Disadvantage</strong> 2d6 -
+        never more or fewer, and they cancel out one for one (p.46). Advantage/Disadvantage token
+        icons, and injuries, pre-fill the roll dialog.</p>
+        <p><strong>Triples:</strong> three of the same number always brings a little bonus, win or lose (p.52).</p>`],
+      ["2. Difficulty & Results", `
+        <p>Easy 1, Medium 2, Difficult 3, Legendary 4 successes (p.48). The chat card reads the result
+        the book's way (p.49):</p>
+        <ul><li><strong>Success</strong> - at least the difficulty: it works as intended.</li>
+        <li><strong>Short of the difficulty</strong> - at least one success: the player chooses to fail
+        without further trouble, or succeed anyway with a complication.</li>
+        <li><strong>Failure</strong> - no successes at all.</li></ul>
+        <p>Leave difficulty on None for an <strong>open action</strong> - the Storyteller judges the
+        successes. <strong>Opposed actions</strong>: both sides roll, most successes wins.
+        <strong>Long tasks</strong>: add successes over repeated rolls toward a target of 4-20.
+        <strong>Group actions</strong>: everyone rolls; if most succeed, all succeed (pp.50-52).</p>`],
+      ["3. Re-rolls & Furr-endship", `
+        <p>A re-roll replaces one die you didn't like (p.47). Click a die on the chat card to choose it,
+        then use a re-roll button. Sources stack: one per relevant Purr-ecious item, one from the
+        Cattribute (an Extra's description), and the GM can grant more for a clever idea.</p>
+        <p>Spend 1 Furr-endship on a card for an automatic success, up to 4 per test (p.54).</p>`],
+      ["4. Heart", `
+        <p>At 0 Heart a character is out of play until the end of the scene or until rested or cared
+        for - the sheet marks this automatically (p.53). Heart comes back 1 at lunch, 1 after a night's
+        sleep, 1 from a comrade's successful Smart test (once per half-day - the Heal Ally action), or
+        1 for 1 Furr-endship with a hug (the "Pamper a friend" button, not during a Catfight).</p>`],
+      ["5. Furr-endship", `
+        <p>It never refills by resting. Recover 1 from a quiet night somewhere safe, a pleasant evening
+        with friends, a moving show, or a comrade's character trait causing trouble (p.54). The GM's
+        "Grant Party Furr-endship" macro handles the first three.</p>`],
+      ["6. Meowgic", `
+        <p>Roll the spell's ability; you need successes equal to its level (p.38). Succeed or fail, the
+        spell is spent until a good night's rest - recasting sooner costs 1 Heart, which the sheet
+        charges (a moon icon marks spells already cast). If a cast fails you can accept it, or click
+        "Force it anyway" to roll a Meowgic accident:</p><ul>${accidents}</ul>`],
+      ["7. Experience", `
+        <p>+1 at the end of every session, +1 more for finishing an adventure or reaching a goal (the GM
+        Tools macros award these). Spend it with the sheet's Improve button (p.42):</p>
+        <ul><li>Raise an ability: 2 x the new level, one step at a time (2 to 3 costs 6). Heart and
+        Furr-endship maximums follow.</li>
+        <li>New skill: 2. New spell: 2. Extra Purr-ecious slot: 4.</li></ul>`],
+      ["8. Catfights", `
+        <p><strong>Fang Catfights</strong> are hissing, posturing, and insults - nobody is really hurt,
+        and you can concede at any time. <strong>Claw Catfights</strong> are fights to hurt or kill:
+        entering one costs 1 Furr-endship at once, and with none left the Kitten must run (p.56). The
+        Claw Attack button enters for you, and ending the combat clears it.</p>
+        <p><strong>Initiative</strong> (p.58): the players choose who acts. After an aggressive action
+        (Attack, Hinder) the initiative passes to the other side; after a non-aggressive one (Defend,
+        Help, Move, Interact) another player can act.</p>
+        <ul><li><strong>Attack</strong> - Fang: Strong or Cute with almost any skill. Claw: Strong or
+        Smart with Scratch only; Purr-ecious weapons give re-rolls. Each success removes 1 Heart.</li>
+        <li><strong>Defend</strong> - Strong or Smart. "Set as Defend" on the card: its successes cancel
+        attack successes against you or your comrades for the rest of the turn.</li>
+        <li><strong>Help</strong> - no roll: the targeted comrade gets an Advantage.</li>
+        <li><strong>Hinder</strong> - at least 1 success gives the target a Disadvantage.</li>
+        <li><strong>Move</strong> and <strong>Interact</strong> - stunts, hiding, talking, lock-picking,
+        tending a friend.</li>
+        <li><strong>Getting out</strong> - concede a Fang Catfight freely; flee a Claw Catfight with Smart
+        (Shake Your Booty) or surrender with Cute (Seduce &amp; Charm) (p.59).</li></ul>
+        <p>A Kitten dropping to 0 Heart in a Claw Catfight rolls for an injury automatically (p.60):</p>
+        <ul>${injuries}</ul>
+        <p>Minor injuries heal at the next rest; incapacitation counts down one day per night's rest;
+        major injuries and lost meowgic heal when the GM marks the adventure complete.</p>`],
+      ["9. Quick Reference", `
+        <ul>
+          <li>3d6, each die at or under the ability is a success; Advantage 4d6, Disadvantage 2d6.</li>
+          <li>Difficulty 1/2/3/4. Short but not zero: fail cleanly or succeed with a complication.</li>
+          <li>Triple = a little bonus. Re-rolls from items, Cattribute, and good ideas.</li>
+          <li>Heart max Strong + Smart; Furr-endship max Cute.</li>
+          <li>Furr-endship: +1 success (max 4/test), or +1 Heart to a friend outside Catfights.</li>
+          <li>Spells: once a day free, recast for 1 Heart; force a failure with a Meowgic accident.</li>
+          <li>Claw Catfight: -1 Furr-endship to enter; 0 Heart means an injury roll.</li>
+          <li>XP: ability 2 x new level, skill 2, spell 2, Purr-ecious slot 4.</li>
+        </ul>`]
+    ])
   };
 }
 
-function buildGuideJournals() {
-  return [CREATION_GUIDE, MECHANICS_GUIDE, buildSkillReferenceGuide()];
+/** Deferred because skill names/descriptions come through game.i18n, ready only by the "ready" hook. */
+function skillReference() {
+  const intro = `<p>Skills aren't rolled on their own - a relevant one gives an Advantage on the ability
+    test the Storyteller asks for.</p>`;
+  const entries = SKILLS.map(key =>
+    `<h3>${game.i18n.localize(`DNK.Skill.${key}`)}</h3><p>${game.i18n.localize(`DNK.SkillDescription.${key}`)}</p>`).join("\n");
+  return { name: "Skill Reference", pages: [page("All Skills", intro + entries, 100000)] };
 }
 
-const GUIDE_PACK_NAME = "dnk-guide";
-const VERSION_SETTING = "guideDataVersion";
-
-/**
- * Make sure the "Player's Guide" compendium of journal entries exists for this world, is
- * populated, and matches the current GUIDE_DATA_VERSION - refreshing its contents whenever the
- * bundled guide text changes.
- */
-export async function ensureGuideCompendium() {
-  if (!game.user.isGM) return;
-
-  let pack = game.packs.get(`world.${GUIDE_PACK_NAME}`);
-  if (!pack) {
-    pack = await CompendiumCollection.createCompendium({
-      type: "JournalEntry",
-      name: GUIDE_PACK_NAME,
-      label: "Dungeons & Kittens: Player's Guide"
-    });
-  }
-
-  const storedVersion = game.settings.get("dungeons-and-kittens", VERSION_SETTING);
-  if (storedVersion >= GUIDE_DATA_VERSION) return;
-
-  const index = await pack.getIndex();
-  if (index.size > 0) {
-    await JournalEntry.deleteDocuments(Array.from(index.keys()), { pack: pack.collection });
-  }
-
-  await JournalEntry.createDocuments(buildGuideJournals(), { pack: pack.collection });
-  await game.settings.set("dungeons-and-kittens", VERSION_SETTING, GUIDE_DATA_VERSION);
-  ui.notifications.info("Dungeons & Kittens: refreshed the Player's Guide compendium.");
+export function ensureGuideCompendium() {
+  return ensureWorldPack({
+    name: "dnk-guide",
+    label: "Dungeons & Kittens: Player's Guide",
+    type: "JournalEntry",
+    version: GUIDE_DATA_VERSION,
+    setting: "guideDataVersion",
+    build: () => [creationGuide(), rulesGuide(), skillReference()]
+  });
 }

@@ -1,5 +1,16 @@
 <form class="dnk-roll-dialog">
-  <p class="hint">{{flavorHint}}</p>
+  {{#if showAbility}}
+    <div class="form-group">
+      <label>{{localize "DNK.Ability"}}</label>
+      <select name="ability">
+        {{#each abilities}}
+          <option value="{{this.key}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+        {{/each}}
+      </select>
+    </div>
+  {{else}}
+    <p class="hint">{{fixedAbility}}</p>
+  {{/if}}
   <div class="form-group">
     <label>{{localize "DNK.Advantage"}}</label>
     <input type="number" name="advantage" value="{{advantage}}" min="0" step="1"/>

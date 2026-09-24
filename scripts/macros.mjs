@@ -6,7 +6,7 @@
  */
 
 /** Bump this whenever COMPANION_MACROS changes so existing worlds get the refreshed macros. */
-export const MACRO_DATA_VERSION = 2;
+export const MACRO_DATA_VERSION = 3;
 
 const COMPANION_MACROS = [
   {
@@ -27,6 +27,7 @@ const COMPANION_MACROS = [
     img: "icons/svg/sword.svg",
     command: `
       return await game.dnk.api.rollCombatActionForActor(scope.actorId, scope.presetKey, {
+        ability: scope.ability,
         advantage: scope.advantage ?? 0,
         disadvantage: scope.disadvantage ?? 0,
         difficulty: scope.difficulty ?? 0
@@ -61,7 +62,7 @@ const COMPANION_MACROS = [
     name: "DNK API: Reroll",
     img: "icons/svg/d6-grey.svg",
     command: `
-      return await game.dnk.api.rerollOnMessage(scope.messageId);
+      return await game.dnk.api.rerollOnMessage(scope.messageId, scope.source ?? "item", scope.dieIndex ?? null);
     `.trim()
   },
   {
@@ -76,6 +77,34 @@ const COMPANION_MACROS = [
     img: "icons/svg/heal.svg",
     command: `
       return await game.dnk.api.healTargetsFromMessage(scope.messageId);
+    `.trim()
+  },
+  {
+    name: "DNK API: Apply Hinder",
+    img: "icons/svg/downgrade.svg",
+    command: `
+      return await game.dnk.api.applyHinderFromMessage(scope.messageId);
+    `.trim()
+  },
+  {
+    name: "DNK API: Force Spell (Meowgic Accident)",
+    img: "icons/svg/explosion.svg",
+    command: `
+      return await game.dnk.api.forceSpellOnMessage(scope.messageId);
+    `.trim()
+  },
+  {
+    name: "DNK API: Improve (Spend Experience)",
+    img: "icons/svg/upgrade.svg",
+    command: `
+      return await game.dnk.api.improveActor(scope.actorId, scope.kind, scope.key);
+    `.trim()
+  },
+  {
+    name: "DNK API: Set Claw Catfight",
+    img: "icons/svg/blood.svg",
+    command: `
+      return await game.dnk.api.setClawCatfight(scope.actorId, scope.inClaw);
     `.trim()
   }
 ];
