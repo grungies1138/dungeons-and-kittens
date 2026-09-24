@@ -9,10 +9,11 @@
       <div class="name-plate">
         <input class="kitten-name" type="text" name="name" value="{{actor.name}}" placeholder="Extra name"/>
       </div>
-      <div class="detail-grid">
-        <label>{{localize "DNK.Role"}}</label>
+      <div class="detail-grid single">
+        <label data-tooltip="{{localize 'DNK.ExtraDescriptionTooltip'}}">{{localize "DNK.Description"}}</label>
         <input type="text" name="system.details.role" value="{{system.details.role}}"/>
       </div>
+      <p class="hint">{{localize "DNK.ExtraBuildHint"}}</p>
     </div>
   </header>
 
@@ -58,18 +59,19 @@
     </div>
   </section>
 
-  <section class="parchment-panel combat-actions">
-    <div class="combat-grid">
-      <button type="button" class="combat-action" data-action="fangAttack">{{localize "DNK.FangAttack"}}</button>
-      <button type="button" class="combat-action" data-action="clawAttack">{{localize "DNK.ClawAttack"}}</button>
-      <button type="button" class="combat-action" data-action="defend">{{localize "DNK.Defend"}}</button>
-      <button type="button" class="combat-action" data-action="hinder">{{localize "DNK.Hinder"}}</button>
-      <button type="button" class="combat-action" data-action="healAlly">{{localize "DNK.HealAlly"}}</button>
-    </div>
-  </section>
+  <nav class="sheet-tabs" data-group="primary">
+    <a class="item" data-tab="skills">{{localize "DNK.Skills"}}</a>
+    <a class="item" data-tab="spellbook">{{localize "DNK.Spellbook"}}</a>
+    <a class="item" data-tab="backpack">{{localize "DNK.Backpack"}}</a>
+    <a class="item" data-tab="combat">{{localize "DNK.Combat"}}</a>
+    <a class="item" data-tab="notes">{{localize "DNK.Notes"}}</a>
+  </nav>
 
-  <section class="parchment-panel">
-    <label>{{localize "DNK.Notes"}}</label>
-    <textarea name="system.details.notes" rows="10">{{system.details.notes}}</textarea>
+  <section class="sheet-body">
+    {{> "systems/dungeons-and-kittens/templates/actor/parts/actor-tabs.html"}}
+
+    <div class="tab parchment-panel" data-group="primary" data-tab="notes">
+      <textarea name="system.details.notes" rows="14">{{system.details.notes}}</textarea>
+    </div>
   </section>
 </form>

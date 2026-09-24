@@ -1,3 +1,5 @@
+import { findSpell, SPELL_PATHS } from "./content.mjs";
+
 /**
  * The five ready-to-play Kittens from the official Quickstart Adventure
  * (Dungeons & Kittens Starter Set, Book 1: First Adventures).
@@ -7,7 +9,7 @@
  */
 
 /** Bump this whenever PREGEN_KITTENS changes so existing worlds get the refreshed data. */
-export const PREGEN_DATA_VERSION = 2;
+export const PREGEN_DATA_VERSION = 3;
 
 const COMMON_GEAR_DESCRIPTION =
   "Wooly blanket, penknife, wooden spoon, small cooking pot, large leather flask, " +
@@ -55,13 +57,17 @@ function kitten({ name, childhood, trait, cattributeName, cattributeDescription,
         name: s.name,
         type: "spell",
         img: "icons/svg/book.svg",
-        system: { ability: s.ability, successes: s.successes, description: s.description, recastCost: 1 }
+        system: {
+          path: findSpell(s.name)?.path ?? "",
+          ability: SPELL_PATHS[findSpell(s.name)?.path]?.ability ?? s.ability,
+          successes: s.successes, description: s.description, recastCost: 1
+        }
       })),
       ...gear.map(g => ({
         name: g.name,
         type: "gear",
         img: "icons/svg/chest.svg",
-        system: { description: g.description, quantity: 1, purrecious: g.purrecious ?? false }
+        system: { description: g.description, quantity: 1, purrecious: true }
       })),
       {
         name: "Common Supplies",
@@ -147,7 +153,7 @@ export const PREGEN_KITTENS = [
       { name: "Luxury fur comb", description: "Silver-backed, and Camilla insists on using it daily no matter how muddy the road." },
       { name: "Ball & carnival masks", description: "Souvenirs of parties back home, kept for the memories as much as for disguises." },
       { name: "Perfume", description: "A single precious vial - she's saving the last of it for something important." },
-      { name: "A beautifully crafted crystal rose (her family symbol)", description: "The Bellefleur family crest, cut from pale crystal. She'd never sell it, whatever it might fetch.", purrecious: false }
+      { name: "A beautifully crafted crystal rose (her family symbol)", description: "The Bellefleur family crest, cut from pale crystal. She'd never sell it, whatever it might fetch." }
     ],
     bio: "Camilla was born into one of the kingdom's noble families. Unfortunately for her, as her friends, she was a victim of King Walter's lottery. She acts like a young, high-ranking noble, but actually feels close to regular people."
   }),

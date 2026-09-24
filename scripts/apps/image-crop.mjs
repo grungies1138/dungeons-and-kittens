@@ -19,6 +19,14 @@ export async function openImageCropDialog(doc, field = "img", sourcePath = null)
 
   return new Promise(resolve => {
     let cropBox = null;
+    /**
+     * Foundry's Dialog calls the "close" option right after a button's own callback fires,
+     * without waiting for that callback's async work to finish - so close's resolve(null) can
+     * win the race against the crop button's resolve(path) if it isn't guarded. Marking
+     * `resolved` synchronously, as the very first line of the crop callback (before any await),
+     * closes that race: it's set before Foundry's close() runs its finally-block check.
+     */
+    let resolved = false;
 
     new Dialog({
       title: game.i18n.localize("DNK.CropImage"),
@@ -28,6 +36,7 @@ export async function openImageCropDialog(doc, field = "img", sourcePath = null)
           icon: '<i class="fas fa-crop"></i>',
           label: game.i18n.localize("DNK.CropAndSave"),
           callback: async () => {
+            resolved = true;
             if (!cropBox) return resolve(null);
             const path = await cropAndUpload(cropBox, doc);
             if (path) await doc.update({ [field]: path });
@@ -37,12 +46,12 @@ export async function openImageCropDialog(doc, field = "img", sourcePath = null)
         cancel: {
           icon: '<i class="fas fa-times"></i>',
           label: game.i18n.localize("DNK.Cancel"),
-          callback: () => resolve(null)
+          callback: () => { resolved = true; resolve(null); }
         }
       },
       default: "crop",
       render: html => { cropBox = activateCropBox(html[0]); },
-      close: () => { cropBox?.destroy(); resolve(null); }
+      close: () => { cropBox?.destroy(); if (!resolved) resolve(null); }
     }, { width: 540 }).render(true);
   });
 }

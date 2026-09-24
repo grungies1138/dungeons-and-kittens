@@ -620,3 +620,83 @@
   align-items: center;
   margin-bottom: 6px;
 }
+
+/* ---------- Core Rulebook additions ---------- */
+
+.dnk-dice-row .die { cursor: pointer; gap: 2px; width: auto; min-width: 26px; padding: 0 4px; }
+.dnk-dice-row .die .die-mark { font-size: 0.6rem; opacity: 0.7; }
+.dnk-dice-row .die.selected { outline: 2px solid #e08a3c; outline-offset: 1px; }
+
+.dnk-result .outcome.success { color: #4c7a3d; }
+.dnk-result .outcome.partial { color: #b8741a; }
+.dnk-result .outcome.failure { color: #b23a3a; }
+.dnk-result .outcome-hint { font-size: 0.75rem; font-style: italic; opacity: 0.8; }
+
+.dnk-accident {
+  background: #efe0f4;
+  border-radius: 6px;
+  padding: 4px 6px;
+  margin-bottom: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.85rem;
+}
+
+.dnk-chat-card.dnk-notice { font-style: italic; }
+.dnk-chat-card.dnk-injury { border-color: #b23a3a; }
+
+.dnk .field-with-button { display: flex; align-items: center; gap: 4px; }
+.dnk .field-with-button input { flex: 1; }
+.dnk .field-with-button a, .dnk .name-plate a { cursor: pointer; color: var(--dnk-brown-light); }
+.dnk .name-plate { display: flex; align-items: center; gap: 6px; }
+.dnk .detail-grid.single { grid-template-columns: auto 1fr; }
+
+.dnk .xp-plate .improve { margin-top: 4px; font-size: 0.75rem; padding: 1px 6px; }
+
+.dnk .kitten-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.dnk .kitten-toolbar button { font-size: 0.8rem; }
+.dnk .kitten-toolbar button:disabled { opacity: 0.45; cursor: default; }
+.dnk .creation-check {
+  font-size: 0.8rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--dnk-brown-light);
+  margin-right: auto;
+}
+.dnk .creation-check.ok { background: var(--cute-color-light); }
+.dnk .creation-check.off { background: var(--furr-color-light); }
+
+.dnk .slot-count { font-weight: bold; margin: 0 0 6px; }
+.dnk .slot-count.over { color: var(--dnk-fail); }
+
+.dnk .combat-actions h4 { margin: 8px 0 4px; font-size: 0.85rem; color: var(--dnk-brown-light); }
+.dnk .claw-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.5);
+  font-size: 0.85rem;
+}
+.dnk .claw-status.active { background: var(--strong-color-light); font-weight: bold; }
+
+.dnk-improve h4 { margin: 8px 0 4px; }
+.dnk-improve .improve-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.dnk-improve select { flex: 1; }
+
+.dnk-childhood .childhood-preview { font-size: 0.85rem; margin: 6px 0; }
+.dnk-childhood .childhood-preview p { margin: 4px 0; }
+
+.dnk .kitten-toolbar button,
+.dnk .xp-plate .improve,
+.dnk .claw-status button,
+.dnk-improve .improve-row button { width: auto; flex: 0 0 auto; white-space: nowrap; }

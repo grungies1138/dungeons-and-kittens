@@ -2,9 +2,9 @@ import { rollAbilityTest } from "./dice.mjs";
 import { openRollDialog } from "./apps/roll-dialog.mjs";
 
 /**
- * The first cast of a given spell "today" is free; casting the same spell again before the
- * recast flag is cleared (see rest.mjs's night's-rest action) costs the item's recastCost in
- * Heart - matching the item sheet's own tooltip on that field.
+ * Casting (p.38): the first cast of a spell each day is free. Whether it succeeds or fails, the
+ * spell is then spent until a good night's rest; recasting it sooner costs 1 Heart (the item's
+ * recastCost). A failed cast can be forced through on the Meowgic accident table from the chat card.
  */
 function resolveCost(item) {
   const usedToday = item.getFlag("dungeons-and-kittens", "usedToday") ?? false;
@@ -12,7 +12,8 @@ function resolveCost(item) {
   return { usedToday, cost };
 }
 
-function checkAffordable(actor, cost) {
+function checkCastable(actor, cost) {
+  if (actor.statuses?.has("dnk-no-meowgic")) throw new Error(game.i18n.localize("DNK.NoMeowgicAllowed"));
   if (cost <= 0) return;
   const heart = actor.system.resources?.heart?.value ?? 0;
   if (cost > heart) throw new Error(game.i18n.format("DNK.NotEnoughHeartToRecast", { cost }));
@@ -23,35 +24,42 @@ async function finalizeSpellCast(actor, item, { usedToday, cost }) {
   if (!usedToday) await item.setFlag("dungeons-and-kittens", "usedToday", true);
 }
 
+function castFlavor(item, cost) {
+  return cost > 0 ? game.i18n.format("DNK.RecastFlavor", { name: item.name, cost }) : item.name;
+}
+
 /**
- * Cast a Spellbook item through the normal roll dialog, so advantage/disadvantage can still
- * be set interactively. The cost is only charged, and the "used today" flag only set, once
- * the player actually confirms a roll (not on a cancelled dialog). Used by the sheet's own
- * spell-roll button.
+ * Cast through the roll dialog so advantage/disadvantage can still be set. The cost is only
+ * charged, and the spell only marked as used, once the player actually confirms a roll.
  */
 export async function castSpell(actor, item) {
   const { usedToday, cost } = resolveCost(item);
-  checkAffordable(actor, cost);
+  checkCastable(actor, cost);
 
-  const flavor = cost > 0 ? game.i18n.format("DNK.RecastFlavor", { name: item.name, cost }) : item.name;
-  const message = await openRollDialog(actor, { ability: item.system.ability, flavor, difficulty: item.system.successes });
+  const message = await openRollDialog(actor, {
+    ability: item.system.ability,
+    flavor: castFlavor(item, cost),
+    difficulty: item.system.successes,
+    spellId: item.id,
+    lockAbility: true
+  });
   if (!message) return null;
 
   await finalizeSpellCast(actor, item, { usedToday, cost });
   return message;
 }
 
-/**
- * Cast a Spellbook item without a dialog - for the Companion API, which supplies its own
- * advantage/disadvantage and can't depend on a GM/player interacting with a Foundry Dialog.
- */
+/** Cast without a dialog - for the Companion API, which supplies its own advantage/disadvantage. */
 export async function castSpellForActor(actor, item, { advantage = 0, disadvantage = 0 } = {}) {
   const { usedToday, cost } = resolveCost(item);
-  checkAffordable(actor, cost);
+  checkCastable(actor, cost);
 
-  const flavor = cost > 0 ? game.i18n.format("DNK.RecastFlavor", { name: item.name, cost }) : item.name;
   const message = await rollAbilityTest(actor, {
-    ability: item.system.ability, flavor, difficulty: item.system.successes, advantage, disadvantage
+    ability: item.system.ability,
+    flavor: castFlavor(item, cost),
+    difficulty: item.system.successes,
+    advantage, disadvantage,
+    spellId: item.id
   });
 
   await finalizeSpellCast(actor, item, { usedToday, cost });

@@ -5,7 +5,7 @@
  */
 
 /** Bump this whenever GM_MACROS changes so existing worlds get the refreshed macros. */
-export const GM_TOOLS_DATA_VERSION = 1;
+export const GM_TOOLS_DATA_VERSION = 2;
 
 const GM_MACROS = [
   {
@@ -22,6 +22,21 @@ const GM_MACROS = [
     name: "DNK: Grant Party Furr-endship",
     img: "icons/svg/heart.svg",
     command: `return await game.dnk.rest.grantPartyFurrendship(1);`
+  },
+  {
+    name: "DNK: End Session (+1 XP)",
+    img: "icons/svg/clockwork.svg",
+    command: `return await game.dnk.rest.endSession();`
+  },
+  {
+    name: "DNK: Adventure Complete (+1 XP)",
+    img: "icons/svg/trophy.svg",
+    command: `return await game.dnk.rest.completeAdventure();`
+  },
+  {
+    name: "DNK: Goal Reached (+1 XP)",
+    img: "icons/svg/target.svg",
+    command: `return await game.dnk.rest.completeAdventure({ endsAdventure: false });`
   }
 ];
 

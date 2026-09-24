@@ -1,0 +1,18 @@
+<div class="dnk-childhood">
+  <div class="form-group">
+    <label>{{localize "DNK.Childhood"}}</label>
+    <select name="childhood">
+      {{#each groups}}
+        <optgroup label="{{this.label}}">
+          {{#each this.options}}<option value="{{this.name}}">{{this.name}}</option>{{/each}}
+        </optgroup>
+      {{/each}}
+    </select>
+  </div>
+  <div class="childhood-preview">
+    <p data-field="description"></p>
+    <p><strong>{{localize "DNK.Cattribute"}}</strong> - <span data-field="cattribute"></span></p>
+    <p><strong>{{localize "DNK.PurreciousItems"}}</strong> - <span data-field="items"></span></p>
+  </div>
+  <p class="hint">{{localize "DNK.ChildhoodApplyHint"}}</p>
+</div>

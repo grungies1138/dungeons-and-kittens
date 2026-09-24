@@ -5,8 +5,18 @@
   </header>
 
   <div class="form-group">
-    <label>{{localize "DNK.Abilities"}}</label>
-    <select name="system.ability">
+    <label data-tooltip="{{localize 'DNK.SpellPathTooltip'}}">{{localize "DNK.SpellPath"}}</label>
+    <select name="system.path">
+      <option value="" {{#if (eq system.path "")}}selected{{/if}}>{{localize "DNK.SpellPathCustom"}}</option>
+      {{#each spellPaths}}
+        <option value="{{@key}}" {{#if (eq ../system.path @key)}}selected{{/if}}>{{this.label}}</option>
+      {{/each}}
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label>{{localize "DNK.Ability"}}</label>
+    <select name="system.ability" {{#if system.path}}disabled{{/if}}>
       <option value="strong" {{#if (eq system.ability "strong")}}selected{{/if}}>{{localize "DNK.AbilityStrong"}}</option>
       <option value="smart" {{#if (eq system.ability "smart")}}selected{{/if}}>{{localize "DNK.AbilitySmart"}}</option>
       <option value="cute" {{#if (eq system.ability "cute")}}selected{{/if}}>{{localize "DNK.AbilityCute"}}</option>
@@ -14,12 +24,12 @@
   </div>
 
   <div class="form-group">
-    <label data-tooltip="How many successes this spell needs: Easy 1, Medium 2, Difficult 3, Legendary 4.">{{localize "DNK.SuccessesNeeded"}}</label>
+    <label data-tooltip="{{localize 'DNK.SpellLevelTooltip'}}">{{localize "DNK.Level"}}</label>
     <input type="number" name="system.successes" value="{{system.successes}}" min="1" max="4" data-dtype="Number"/>
   </div>
 
   <div class="form-group">
-    <label data-tooltip="Heart points automatically charged when this spell is cast again before its recast flag is cleared by a night's rest. The first cast of the day is always free.">{{localize "DNK.RecastCost"}}</label>
+    <label data-tooltip="{{localize 'DNK.RecastTooltip'}}">{{localize "DNK.RecastCost"}}</label>
     <input type="number" name="system.recastCost" value="{{system.recastCost}}" min="0" data-dtype="Number"/>
   </div>
 

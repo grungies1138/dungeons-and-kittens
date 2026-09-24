@@ -1,3 +1,5 @@
+import { SPELL_PATHS } from "../content.mjs";
+
 export class DnkItemSheet extends ItemSheet {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
@@ -18,6 +20,7 @@ export class DnkItemSheet extends ItemSheet {
   async getData(options) {
     const context = await super.getData(options);
     context.system = context.item.system;
+    context.spellPaths = SPELL_PATHS;
     return context;
   }
 }
