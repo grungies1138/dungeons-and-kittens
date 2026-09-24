@@ -1,5 +1,7 @@
 import { rollAbilityTest } from "../dice.mjs";
 import { ABILITY_KEYS } from "../content.mjs";
+import { consumeOneShots } from "../catfight.mjs";
+import { rules } from "../rules-level.mjs";
 
 /** Statuses that impose a disadvantage on every roll: the Disadvantage toggle and Claw injuries (p.60). */
 const DISADVANTAGE_STATUSES = ["dnk-disadvantage", "dnk-injured", "dnk-injured-major"];
@@ -39,7 +41,9 @@ export async function openRollDialog(actor, presets = {}) {
     fixedAbility: abilityLabel(ability),
     advantage: presets.advantage ?? statusAdvantage,
     disadvantage: presets.disadvantage ?? statusDisadvantage,
-    difficulty: presets.difficulty ?? 0
+    difficulty: presets.difficulty ?? 0,
+    showDifficulty: rules().difficulty,
+    showAdvantages: rules().advantages
   });
 
   const title = flavor ? `${game.i18n.localize("DNK.RollDialogTitle")}: ${flavor}` : game.i18n.localize("DNK.RollDialogTitle");
@@ -64,14 +68,15 @@ export async function openRollDialog(actor, presets = {}) {
             const message = await rollAbilityTest(actor, {
               ability: form.ability?.value || ability,
               flavor,
-              advantage: Number(form.advantage.value) || 0,
-              disadvantage: Number(form.disadvantage.value) || 0,
-              difficulty: Number(form.difficulty.value) || 0,
+              advantage: Number(form.advantage?.value) || 0,
+              disadvantage: Number(form.disadvantage?.value) || 0,
+              difficulty: Number(form.difficulty?.value) || 0,
               isDefend: presets.isDefend,
               isHeal: presets.isHeal,
               isHinder: presets.isHinder,
               spellId: presets.spellId ?? null
             });
+            await consumeOneShots(actor);
             resolve(message);
           }
         }

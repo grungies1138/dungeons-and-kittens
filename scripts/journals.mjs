@@ -9,7 +9,7 @@ import { CHILDHOODS, CHILDHOOD_CATEGORIES, SPELLS, SPELL_PATHS, MEOWGIC_ACCIDENT
 import { ensureWorldPack } from "./packs.mjs";
 
 /** Bump this whenever the guide content changes so existing worlds get the refreshed pages. */
-export const GUIDE_DATA_VERSION = 7;
+export const GUIDE_DATA_VERSION = 8;
 
 function page(name, html, sort) {
   return { name, type: "text", title: { show: true, level: 2 }, text: { format: 1, content: html }, sort };
@@ -101,12 +101,17 @@ function rulesGuide() {
         <p>Leave difficulty on None for an <strong>open action</strong> - the Storyteller judges the
         successes. <strong>Opposed actions</strong>: both sides roll, most successes wins.
         <strong>Long tasks</strong>: add successes over repeated rolls toward a target of 4-20.
-        <strong>Group actions</strong>: everyone rolls; if most succeed, all succeed (pp.50-52).</p>`],
+        <strong>Group actions</strong>: everyone rolls; if most succeed, all succeed (pp.50-52). The GM Tools
+        compendium has a macro for each.</p>
+        <p>New to the game? The <em>Rules in play</em> world setting follows the book's Appendix: start with
+        just abilities and Heart, then add triples, re-rolls, difficulty, advantages, and Furr-endship.</p>`],
       ["3. Re-rolls & Furr-endship", `
         <p>A re-roll replaces one die you didn't like (p.47). Click a die on the chat card to choose it,
         then use a re-roll button. Sources stack: one per relevant Purr-ecious item, one from the
         Cattribute (an Extra's description), and the GM can grant more for a clever idea.</p>
-        <p>Spend 1 Furr-endship on a card for an automatic success, up to 4 per test (p.54).</p>`],
+        <p>Spend 1 Furr-endship on a card for an automatic success (p.54). Counting the successful dice, spending
+        can't take a test past 4 successes. You can spend on your own roll or a companion's: the button charges
+        your own assigned character when you click it on someone else's card.</p>`],
       ["4. Heart", `
         <p>At 0 Heart a character is out of play until the end of the scene or until rested or cared
         for - the sheet marks this automatically (p.53). Heart comes back 1 at lunch, 1 after a night's
@@ -120,7 +125,9 @@ function rulesGuide() {
         <p>Roll the spell's ability; you need successes equal to its level (p.38). Succeed or fail, the
         spell is spent until a good night's rest - recasting sooner costs 1 Heart, which the sheet
         charges (a moon icon marks spells already cast). If a cast fails you can accept it, or click
-        "Force it anyway" to roll a Meowgic accident:</p><ul>${accidents}</ul>`],
+        "Force it anyway" to roll a Meowgic accident:</p><ul>${accidents}</ul>
+        <p>First Aid, Care, Heart Charm, and Long Night get a chat-card button that applies their effect once
+        the spell works.</p>`],
       ["7. Experience", `
         <p>+1 at the end of every session, +1 more for finishing an adventure or reaching a goal (the GM
         Tools macros award these). Spend it with the sheet's Improve button (p.42):</p>

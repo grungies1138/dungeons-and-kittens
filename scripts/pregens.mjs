@@ -1,4 +1,4 @@
-import { findSpell, SPELL_PATHS } from "./content.mjs";
+import { findSpell, SPELL_PATHS, CHILDHOODS } from "./content.mjs";
 
 /**
  * The five ready-to-play Kittens from the official Quickstart Adventure
@@ -9,12 +9,12 @@ import { findSpell, SPELL_PATHS } from "./content.mjs";
  */
 
 /** Bump this whenever PREGEN_KITTENS changes so existing worlds get the refreshed data. */
-export const PREGEN_DATA_VERSION = 3;
+export const PREGEN_DATA_VERSION = 4;
 
+/** The everyday supplies every exile carries (p.23). */
 const COMMON_GEAR_DESCRIPTION =
-  "Wooly blanket, penknife, wooden spoon, small cooking pot, large leather flask, " +
-  "tinderbox, candle stubs, small bar of soap, a fur brush, bag of kittysnacks - the same " +
-  "small bundle every exiled Kitten was sent off with.";
+  "A wooly blanket so they can sleep warm and dry, a sharp pen-knife, a wooden spoon, a small cooking pot, " +
+  "a large leather flask, a tinderbox, a few candle stubs, a bar of soap, a brush, a packet of kittysnacks for the road.";
 
 const SHARED_BACKSTORY =
   "Best friends since they were young Kittens, the group met near a little pond outside " +
@@ -23,7 +23,7 @@ const SHARED_BACKSTORY =
   "have been inseparable ever since. Then King Walter's exile lottery scattered them onto " +
   "the road together.";
 
-function kitten({ name, childhood, trait, cattributeName, cattributeDescription, strong, smart, cute, skills, spells, gear, bio }) {
+function kitten({ name, childhood, trait, cattributeName, cattributeDescription, strong, smart, cute, skills, spells, gear, bio, backstory = SHARED_BACKSTORY }) {
   const heart = strong + smart;
   return {
     name,
@@ -60,14 +60,15 @@ function kitten({ name, childhood, trait, cattributeName, cattributeDescription,
         system: {
           path: findSpell(s.name)?.path ?? "",
           ability: SPELL_PATHS[findSpell(s.name)?.path]?.ability ?? s.ability,
-          successes: s.successes, description: s.description, recastCost: 1
+          successes: s.successes ?? findSpell(s.name)?.level ?? 1,
+          description: s.description ?? findSpell(s.name)?.description ?? "", recastCost: 1
         }
       })),
       ...gear.map(g => ({
         name: g.name,
         type: "gear",
         img: "icons/svg/chest.svg",
-        system: { description: g.description, quantity: 1, purrecious: true }
+        system: { description: g.description ?? "", quantity: 1, purrecious: true }
       })),
       {
         name: "Common Supplies",
@@ -77,6 +78,37 @@ function kitten({ name, childhood, trait, cattributeName, cattributeDescription,
       }
     ]
   };
+}
+
+/**
+ * The five ready-to-play Kittens printed at the back of the Core Rulebook (pp.283-287).
+ * Their Cattribute text comes from their Childhood. Blunk's sheet prints Strong 5 / Smart 2 /
+ * Cute 3 with Heart 5 - Heart 5 and the 8-point creation rule both point to Strong 3, a misprint.
+ */
+const CORE_PREGENS = [
+  { name: "Bibi", childhood: "Catnut", trait: "Shy", abilities: [5, 2, 1], skills: ["hissAndGrowl", "shakeYourBooty"],
+    spells: ["Earthworks", "First Aid"], gear: ["Heavy bramble stick", "Bug armor", "Cape of leaves", "Bow and arrows", "Big black cauldron"] },
+  { name: "Grizzle", childhood: "Abandoned Kitten", trait: "Reckless", abilities: [2, 3, 3], skills: ["pickpocket", "seeAndSearch"],
+    spells: ["Cat's Eyes", "Slice and Dice"], gear: ["Dark hood", "Rope and grappling hook", "Small tool kit", "Nice silk handkerchiefs", "A good, sharp knife"] },
+  { name: "Caramel", childhood: "Kitty Merchant", trait: "Lofty", abilities: [1, 5, 2], skills: ["readWriteCount", "sweetTalk"],
+    spells: ["Animate Object", "Quick Fix"], gear: ["A perfumed silk scarf", "Trinkets to exchange or gift", "Scales and weights", "Compass", "A time-estimating machine"] },
+  { name: "Misty", childhood: "Meowge", trait: "Shy", abilities: [2, 4, 2], skills: ["healWoundsAndDiseases", "knowledgeOfPeopleAndPlaces"],
+    spells: ["The Color of Grass", "Quick as a Flash", "Bug Swarm", "Talk to Trees"], gear: ["Small meowgic spellbook", "Meowgic wand", "Big hat", "Broom/walking stick", "Porcelain tea set"] },
+  { name: "Blunk", childhood: "Apprent-hiss", trait: "Distracted", abilities: [3, 2, 3], skills: ["makeMusic", "seeAndSearch"],
+    spells: ["Summon Tools", "Quick Fix"], gear: ["Three-inch wrench", "Jeweler's magnifying glass", "Leather apron", "Oil can", "Dish soap"] }
+];
+
+function corePregen({ name, childhood, trait, abilities: [strong, smart, cute], skills, spells, gear }) {
+  const c = CHILDHOODS.find(x => x.name === childhood);
+  return kitten({
+    name, childhood, trait, strong, smart, cute, skills,
+    cattributeName: c.cattribute,
+    cattributeDescription: c.cattributeText,
+    spells: spells.map(n => ({ name: findSpell(n).name })),
+    gear: gear.map(n => ({ name: n })),
+    bio: c.description,
+    backstory: ""
+  });
 }
 
 export const PREGEN_KITTENS = [
@@ -205,10 +237,11 @@ export const PREGEN_KITTENS = [
       { name: "A joke book", description: "Dog-eared and much-loved, though nobody else seems to find these jokes as funny as he does." }
     ],
     bio: "Cheesy was exiled by King Walter when he was very young, because he smells of cheese - a smell the King cannot stand. Cheesy is wild, but also very funny, and loves to tell jokes (and eat cheese)."
-  })
+  }),
+  ...CORE_PREGENS.map(corePregen)
 ];
 
-/** Create the five official pregenerated Kittens as Actors in the current world. */
+/** Create the official pregenerated Kittens as Actors in the current world. */
 export async function importPregens() {
   const created = await Actor.create(PREGEN_KITTENS);
   ui.notifications.info(`Dungeons & Kittens: imported ${created.length} pregenerated Kittens.`);

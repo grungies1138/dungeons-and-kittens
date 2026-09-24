@@ -5,7 +5,7 @@
  */
 
 /** Bump this whenever GM_MACROS changes so existing worlds get the refreshed macros. */
-export const GM_TOOLS_DATA_VERSION = 2;
+export const GM_TOOLS_DATA_VERSION = 3;
 
 const GM_MACROS = [
   {
@@ -37,6 +37,21 @@ const GM_MACROS = [
     name: "DNK: Goal Reached (+1 XP)",
     img: "icons/svg/target.svg",
     command: `return await game.dnk.rest.completeAdventure({ endsAdventure: false });`
+  },
+  {
+    name: "DNK: Group Test",
+    img: "icons/svg/combat.svg",
+    command: `return await game.dnk.group.groupTest();`
+  },
+  {
+    name: "DNK: Opposed Test",
+    img: "icons/svg/pawprint.svg",
+    command: `return await game.dnk.group.opposedTest();`
+  },
+  {
+    name: "DNK: Long Task",
+    img: "icons/svg/hourglass.svg",
+    command: `return await game.dnk.group.startLongTask();`
   }
 ];
 

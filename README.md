@@ -4,9 +4,9 @@ A fan-made Foundry Virtual Tabletop system implementing the rules of **Dungeons 
 the cooperative animal-fantasy roleplaying game written by Trickytophe / François Cedelle
 (Studio Deadcrows) and published by EDGE Studio (Asmodee Group), used with the publisher's
 permission. This project is **not** affiliated with or endorsed by Asmodee, EDGE Studio, or
-Deadcrows Studio, and contains no artwork from their books. Rules are implemented from the
-**Core Rulebook**; game data (names, numbers, spell levels, item lists, tables) is carried over,
-while every description is written in this project's own words, with page references.
+Deadcrows Studio. Rules are implemented from the **Core Rulebook**, and the book's text -
+spells, Childhoods, skills, Extras, tables, and the full book as journals - is included with the
+publisher's permission. No illustrations are included.
 
 If you enjoy the game, please support the creators by buying the **Dungeons & Kittens Starter
 Set** and **Core Rulebook**.
@@ -21,7 +21,9 @@ Set** and **Core Rulebook**.
   succeed with a complication), or **failure** (no successes).
 - **Re-rolls stack**: click a die to pick it, then re-roll from each relevant Purr-ecious item,
   the Cattribute (an Extra's description), or a GM-granted "good idea".
-- Triples are flagged; Furr-endship buys automatic successes (max 4 per test).
+- Triples are flagged. Furr-endship buys automatic successes, but counting the dice a test can't
+  pass 4 successes this way; you can spend on a companion's roll too. Extras can't spend it.
+- Help, Hinder, and a helpful character trait last for the target's next roll only.
 - Advantage/Disadvantage token icons and injuries pre-fill the roll dialog, which also lets
   Catfight actions pick among the abilities they allow.
 
@@ -63,6 +65,15 @@ Set** and **Core Rulebook**.
 **Extras (p.65)**: Extras have skills, spells, and Purr-ecious items like Kittens, with the
 book's tier guide on the sheet.
 
+**Spell effects**: First Aid, Care, Heart Charm (until the next dawn), and Long Night each get a
+chat-card button that applies them once the spell works.
+
+**Storyteller tools**: group tests, opposed tests, and long-task trackers (pp.50-52); the Young
+Noble's Inheritance coin arrives at each End Session.
+
+**Lighter rules (Appendix)**: a "Rules in play" world setting introduces the mechanics step by
+step, from abilities and Heart alone up to the full game.
+
 **Also**: Heal Ally (Smart test, once per half-day per recipient), lunch and night rests,
 optional Dice So Nice colorset.
 
@@ -80,17 +91,18 @@ updated content. Look under "World" in the Compendium sidebar.
 
 | Compendium | Contents |
 | --- | --- |
-| Pregenerated Kittens | Sparkle, Bobbin, Camilla Bellefleur, Dart, and Cheesy from the Quickstart. |
+| Core Rulebook | The whole book as journals: one entry per chapter, one page per book page. |
+| Pregenerated Kittens | Sparkle, Bobbin, Camilla, Dart, and Cheesy (Quickstart) and Bibi, Grizzle, Caramel, Misty, and Blunk (Core Rulebook). |
 | Player's Guide | Kitten creation (with all Childhoods and spells), rules and sheet hints, skill reference. |
 | Spells | All 36 spells, ready to drag onto a sheet. |
 | Bestiary | The Core Rulebook's named Extras (about 70), with skills, spells, and items. |
-| Tables | Character Trait, Childhood (weighted like the book), Kitten Name, Meowgic Accident, Claw Injury, and the Selene's Nightmare generator. |
+| Tables | Character Trait, Childhood (weighted like the book), Kitten Name, Meowgic Accident, Claw Injury, the setting tables (Cat Tree City, the Smoking Cat, Downtown), the Crimsonfief dungeon generator, and the full Selene's Nightmare generator. |
 | GM Tools | Party-wide macros (below). |
 | Companion API | Macros for external tools (below). |
 
 If one doesn't appear, run the matching console command, e.g.
 `await game.dnk.ensureSpellsCompendium();` (also `ensurePregenCompendium`,
-`ensureGuideCompendium`, `ensureBestiaryCompendium`, `ensureTablesCompendium`,
+`ensureGuideCompendium`, `ensureRulebookCompendium`, `ensureBestiaryCompendium`, `ensureTablesCompendium`,
 `ensureGmToolsCompendium`, `ensureCompanionApiCompendium`). `await game.dnk.importPregens();`
 drops the five pregens straight into the Actors directory.
 
@@ -106,6 +118,9 @@ Each acts on the selected tokens' actors, or every Kitten in the world if nothin
 | DNK: End Session (+1 XP) | +1 experience; character traits can be used again. |
 | DNK: Adventure Complete (+1 XP) | +1 experience; heals adventure-long injuries and lost meowgic. |
 | DNK: Goal Reached (+1 XP) | +1 experience. |
+| DNK: Group Test | Everyone rolls; the group succeeds if most do. |
+| DNK: Opposed Test | Selected token vs targeted token; most successes wins. |
+| DNK: Long Task | A chat card that tallies successes toward a target over repeated rolls. |
 
 Kittens also have their own **Night's Rest** button in the sheet's title bar.
 

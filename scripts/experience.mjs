@@ -54,8 +54,13 @@ export async function buyImprovement(actor, kind, key) {
     const value = sys.abilities[key]?.value;
     if (value === undefined) throw new Error(game.i18n.localize("DNK.InvalidChoice"));
     if (value >= ABILITY_MAX) throw new Error(game.i18n.format("DNK.AbilityMaxed", { max: ABILITY_MAX }));
-    return spend(actor, XP_COSTS.ability(value + 1), { [`system.abilities.${key}.value`]: value + 1 },
-      `${abilityLabel(key)} ${value + 1}`);
+    /** "When abilities increase, the same applies to Heart points or Furr-endship points" (p.42). */
+    const resource = key === "cute" ? "furrendship" : "heart";
+    const current = sys.resources[resource].value;
+    return spend(actor, XP_COSTS.ability(value + 1), {
+      [`system.abilities.${key}.value`]: value + 1,
+      [`system.resources.${resource}.value`]: current + 1
+    }, `${abilityLabel(key)} ${value + 1}`);
   }
   if (kind === "skill") {
     if (!SKILLS.includes(key) || sys.skills[key]?.trained) throw new Error(game.i18n.localize("DNK.InvalidChoice"));

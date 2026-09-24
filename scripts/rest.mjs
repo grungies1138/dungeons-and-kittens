@@ -38,6 +38,8 @@ async function applyRestToActor(actor, kind) {
   for (const item of actor.items.filter(i => i.type === "spell" && i.getFlag(SCOPE, "usedToday"))) {
     await item.unsetFlag(SCOPE, "usedToday");
   }
+  /** Spells that last "until the next dawn" end with the night - notably a Heart Charm's bonus (p.39). */
+  if (actor.system.resources.heart.bonus) await actor.update({ "system.resources.heart.bonus": 0 });
   const days = actor.getFlag(SCOPE, "incapacitatedDays");
   if (days) {
     if (days <= 1) {
@@ -82,13 +84,32 @@ export async function grantPartyFurrendship(amount = 1, { actors } = {}) {
   return targets.map(a => a.id);
 }
 
-/** End of session: +1 experience each (p.42), and character traits can be used again (p.24). */
+/**
+ * Young Noble's Inheritance (p.26): an animal courier brings one gold coin stamped with Walter's
+ * profile each session - a Purr-ecious item that doesn't count toward the backpack limit. Coins
+ * stack on one item. Delivered at End Session, so it's in hand when the next session starts.
+ */
+async function deliverInheritance(actor) {
+  const name = game.i18n.localize("DNK.InheritanceCoin");
+  const coin = actor.items.find(i => i.type === "gear" && i.name === name);
+  if (coin) return coin.update({ "system.quantity": coin.system.quantity + 1 });
+  return actor.createEmbeddedDocuments("Item", [{
+    name, type: "gear", img: "icons/commodities/currency/coin-embossed-crown-gold.webp",
+    system: { quantity: 1, purrecious: true, slotFree: true, description: game.i18n.localize("DNK.InheritanceCoinDescription") }
+  }]);
+}
+
+/**
+ * End of session: +1 experience each (p.42), character traits can be used again (p.24), and
+ * Young Nobles receive their Inheritance coin.
+ */
 export async function endSession({ actors } = {}) {
   const targets = requireGMTargets(actors).filter(a => a.type === "kitten");
   await awardExperience(targets, 1);
   for (const actor of targets) {
     await actor.unsetFlag(SCOPE, "traitPositiveUsed");
     await actor.unsetFlag(SCOPE, "traitNegativeUsed");
+    if (actor.system.details?.cattribute?.name?.trim().toLowerCase() === "inheritance") await deliverInheritance(actor);
   }
   ui.notifications.info(game.i18n.format("DNK.SessionEnded", { count: targets.length }));
   return targets.map(a => a.id);
