@@ -4,7 +4,7 @@ import { ensureWorldPack } from "./packs.mjs";
 import { EXTRA_TEXT } from "./rulebook-text.mjs";
 
 /** Bump whenever BESTIARY_EXTRAS changes so existing worlds get the refreshed data. */
-export const BESTIARY_DATA_VERSION = 4;
+export const BESTIARY_DATA_VERSION = 5;
 
 /**
  * The Core Rulebook's named Extras. Abilities, skills, spells, and Purr-ecious items are the
@@ -104,6 +104,23 @@ function portraitFor(name) {
   return PORTRAITS.has(slug) ? `systems/dungeons-and-kittens/assets/bestiary/${slug}.jpg` : "icons/svg/mystery-man.svg";
 }
 
+/** Token disposition from how the book presents each Extra; everyone else is neutral. */
+const HOSTILE = new Set(["Ruby-Chewsday", "Flounder", "Fulstop", "Furnace", "Ptolomeow", "Reverend Mother Barbiecute",
+  "The Albino Crocodile", "Brutus", "Bish, Bash, and Bosh", "Bojosar", "Robber Toad", "Iron Loin", "Local Rogue",
+  "Edmund", "Rider on the Storm", "Dark", "Black Horn Mercenary", "Captain Blueclaw", "Crowtie", "Greaser", "Sikkli",
+  "Royal Guard", "Barnaby", "Wolfrik's Ruffian", "Wolfrik"]);
+const FRIENDLY = new Set(["Taro", "Regina Roundpaw", "Sadie Roundpaw", "Ignatius", "Old Man Chompy", "Crusty",
+  "Matey Mousetail", "Bruno", "Tina the Traveller", "Mama", "Chuck the Catnut", "Captain Buttercup", "Beep and Squeek",
+  "Louis the Learned", "Jazzy the Blacksmith", "The Lovely Apollo", "Luna the Guardian", "Buddy",
+  "Suzanne, the Witch-Viper", "Cheddar George", "Lady Sibyl", "Marikatolsn and Ashliolsn", "Mrs. Cuddles", "Dualeaper",
+  "Rainbow Tumble Tribe Guard", "The Bloomundays", "Mrs. Bighorn", "Jojo", "Mr. Mooner", "Mrs. Lewcy", "Grenada",
+  "Wellington", "Galiena", "Mrs. Rosie Rosevale", "Snorter, Snorfer, and Snorfy"]);
+function dispositionFor(name) {
+  if (HOSTILE.has(name)) return CONST.TOKEN_DISPOSITIONS.HOSTILE;
+  if (FRIENDLY.has(name)) return CONST.TOKEN_DISPOSITIONS.FRIENDLY;
+  return CONST.TOKEN_DISPOSITIONS.NEUTRAL;
+}
+
 function buildExtras() {
   const skillKeys = skillKeyIndex();
   const norm = s => s.toLowerCase().replace(/&/g, "and").replace(/[^a-z]/g, "");
@@ -121,7 +138,7 @@ function buildExtras() {
       name,
       type: "extra",
       img,
-      prototypeToken: { texture: { src: img } },
+      prototypeToken: { texture: { src: img }, disposition: dispositionFor(name) },
       system: {
         abilities: { strong: { value: strong }, smart: { value: smart }, cute: { value: cute } },
         resources: { heart: { value: heart, max: heart }, furrendship: { value: cute, max: cute } },

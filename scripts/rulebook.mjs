@@ -1,7 +1,7 @@
 import { ensureWorldPack } from "./packs.mjs";
 
 /** Bump whenever data/rulebook.json is regenerated so existing worlds get the refreshed text. */
-export const RULEBOOK_DATA_VERSION = 1;
+export const RULEBOOK_DATA_VERSION = 2;
 
 let cache = null;
 async function loadRulebook() {
