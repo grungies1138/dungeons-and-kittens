@@ -1,0 +1,36 @@
+<section class="dnk-party">
+  {{#unless kittens.length}}<p class="hint">{{localize "DNK.NoPartyFound"}}</p>{{/unless}}
+  <ol class="party-list">
+    {{#each kittens}}
+      <li class="party-row">
+        <img class="party-portrait party-open" data-actor-id="{{this.id}}" src="{{this.img}}" title="{{this.name}}"/>
+        <div class="party-main">
+          <a class="party-name party-open" data-actor-id="{{this.id}}">{{this.name}}</a>
+          <div class="party-statuses">{{#each this.statuses}}<img src="{{this.img}}" data-tooltip="{{this.name}}"/>{{/each}}</div>
+        </div>
+        <div class="party-resource" data-tooltip="{{localize 'DNK.Heart'}}">
+          <i class="fas fa-heart"></i>
+          {{#if (or ../isGM this.owner)}}<a class="party-adjust" data-actor-id="{{this.id}}" data-resource="heart" data-delta="-1"><i class="fas fa-minus"></i></a>{{/if}}
+          <span>{{this.heart.value}} / {{this.heart.max}}</span>
+          {{#if (or ../isGM this.owner)}}<a class="party-adjust" data-actor-id="{{this.id}}" data-resource="heart" data-delta="1"><i class="fas fa-plus"></i></a>{{/if}}
+        </div>
+        <div class="party-resource" data-tooltip="{{localize 'DNK.Furrendship'}}">
+          <i class="fas fa-paw"></i>
+          {{#if (or ../isGM this.owner)}}<a class="party-adjust" data-actor-id="{{this.id}}" data-resource="furrendship" data-delta="-1"><i class="fas fa-minus"></i></a>{{/if}}
+          <span>{{this.furr.value}} / {{this.furr.max}}</span>
+          {{#if (or ../isGM this.owner)}}<a class="party-adjust" data-actor-id="{{this.id}}" data-resource="furrendship" data-delta="1"><i class="fas fa-plus"></i></a>{{/if}}
+        </div>
+        <div class="party-xp" data-tooltip="{{localize 'DNK.Experience'}}"><i class="fas fa-star"></i> {{this.xp}}</div>
+      </li>
+    {{/each}}
+  </ol>
+  {{#if isGM}}
+    <div class="party-actions">
+      <button type="button" class="party-lunch"><i class="fas fa-sun"></i> {{localize "DNK.LunchRest"}}</button>
+      <button type="button" class="party-night"><i class="fas fa-moon"></i> {{localize "DNK.NightRestButton"}}</button>
+      <button type="button" class="party-furr"><i class="fas fa-paw"></i> {{localize "DNK.PartyFurrendship"}}</button>
+      <button type="button" class="party-xp"><i class="fas fa-star"></i> {{localize "DNK.PartyXP"}}</button>
+      <button type="button" class="party-request"><i class="fas fa-bullhorn"></i> {{localize "DNK.RequestTest"}}</button>
+    </div>
+  {{/if}}
+</section>

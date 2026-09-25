@@ -32,7 +32,7 @@ function castFlavor(item, cost) {
  * Cast through the roll dialog so advantage/disadvantage can still be set. The cost is only
  * charged, and the spell only marked as used, once the player actually confirms a roll.
  */
-export async function castSpell(actor, item) {
+export async function castSpell(actor, item, { fastForward = false } = {}) {
   const { usedToday, cost } = resolveCost(item);
   checkCastable(actor, cost);
 
@@ -41,7 +41,8 @@ export async function castSpell(actor, item) {
     flavor: castFlavor(item, cost),
     difficulty: item.system.successes,
     spellId: item.id,
-    lockAbility: true
+    lockAbility: true,
+    fastForward
   });
   if (!message) return null;
 

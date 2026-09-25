@@ -16,6 +16,17 @@ export class DnkActor extends Actor {
     const update = {};
     if (given.heart?.value === undefined) update["system.resources.heart.value"] = abilities.strong.value + abilities.smart.value;
     if (given.furrendship?.value === undefined) update["system.resources.furrendship.value"] = abilities.cute.value;
+
+    /** Token defaults (as dnd5e does for player characters): Kittens are linked, friendly, and see. */
+    const token = data.prototypeToken ?? {};
+    if (token.displayBars === undefined) update["prototypeToken.displayBars"] = CONST.TOKEN_DISPLAY_MODES.OWNER;
+    if (token.bar1?.attribute === undefined) update["prototypeToken.bar1.attribute"] = "resources.heart";
+    if (this.type === "kitten") {
+      if (token.actorLink === undefined) update["prototypeToken.actorLink"] = true;
+      if (token.disposition === undefined) update["prototypeToken.disposition"] = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
+      if (token.sight?.enabled === undefined) update["prototypeToken.sight.enabled"] = true;
+      if (token.bar2?.attribute === undefined) update["prototypeToken.bar2.attribute"] = "resources.furrendship";
+    }
     if (Object.keys(update).length) this.updateSource(update);
   }
 

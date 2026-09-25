@@ -72,11 +72,17 @@ function hasCattributeSource(actor) {
  * @param {number} [options.disadvantage] Count of disadvantage sources.
  * @param {number} [options.difficulty]   Successes required (0 = open action), 1-4.
  * @param {string} [options.spellId]      Set when this roll casts a Spellbook item.
+ * @param {string} [options.skill]        A skill key; if the actor has it, it adds 1 advantage (p.19).
  */
 export async function rollAbilityTest(actor, {
   ability, flavor = "", advantage = 0, disadvantage = 0, difficulty = 0,
-  isDefend = false, isHeal = false, isHinder = false, spellId = null
+  isDefend = false, isHeal = false, isHinder = false, spellId = null, skill = null
 } = {}) {
+  if (skill && actor.system.skills?.[skill]?.trained) {
+    advantage += 1;
+    const skillLabel = game.i18n.localize(`DNK.Skill.${skill}`);
+    flavor = flavor ? `${flavor} (${skillLabel})` : skillLabel;
+  } else skill = null;
   const abilityValue = Number(actor.system.abilities?.[ability]?.value ?? 0);
   /** Lighter rules (Appendix): before difficulty levels, 1 success is enough; before advantages, always 3d6. */
   const inPlay = rules();
@@ -99,6 +105,7 @@ export async function rollAbilityTest(actor, {
     isHeal: !!isHeal,
     isHinder: !!isHinder,
     spellId,
+    skill,
     accident: null
   };
 

@@ -8,16 +8,18 @@ export const CLAW_STATUS = "dnk-claw-catfight";
  * the default in the roll dialog). `aggressive` actions pass the initiative to the other side.
  * Help needs no roll at all; Claw Attack requires being in a Claw Catfight (entering costs
  * 1 Furr-endship, once - p.56); Flee and Surrender are the ways out of a Claw Catfight (p.59).
+ * `skills` are the ones the quick reference (p.281) pairs with the action; the first one the
+ * actor has is pre-selected for its advantage.
  */
 export const COMBAT_PRESETS = {
   fangAttack: { abilities: ["strong", "cute"], flavorKey: "DNK.FangAttack", aggressive: true },
-  clawAttack: { abilities: ["strong", "smart"], flavorKey: "DNK.ClawAttack", aggressive: true, claw: true },
-  defend: { abilities: ["strong", "smart"], flavorKey: "DNK.Defend", isDefend: true },
+  clawAttack: { abilities: ["strong", "smart"], flavorKey: "DNK.ClawAttack", aggressive: true, claw: true, skills: ["scratch"] },
+  defend: { abilities: ["strong", "smart"], flavorKey: "DNK.Defend", isDefend: true, skills: ["keepCalmAndCarryOn", "shakeYourBooty"] },
   help: { flavorKey: "DNK.Help", auto: true },
   hinder: { abilities: ["smart", "strong", "cute"], flavorKey: "DNK.Hinder", aggressive: true, isHinder: true },
-  move: { abilities: ["strong", "smart"], flavorKey: "DNK.Move" },
+  move: { abilities: ["strong", "smart"], flavorKey: "DNK.Move", skills: ["shakeYourBooty"] },
   interact: { abilities: ["smart", "strong", "cute"], flavorKey: "DNK.Interact" },
-  healAlly: { abilities: ["smart"], flavorKey: "DNK.HealAlly", isHeal: true },
+  healAlly: { abilities: ["smart"], flavorKey: "DNK.HealAlly", isHeal: true, skills: ["healWoundsAndDiseases"] },
   flee: { abilities: ["smart"], flavorKey: "DNK.Flee" },
   surrender: { abilities: ["cute"], flavorKey: "DNK.Surrender" }
 };

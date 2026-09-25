@@ -2,6 +2,7 @@ import { SKILLS } from "../skills.mjs";
 import { openRollDialog } from "../apps/roll-dialog.mjs";
 import { openImageCropDialog } from "../apps/image-crop.mjs";
 import { castSpell } from "../spells.mjs";
+import { postItemCard } from "../automation.mjs";
 import { applyNightRestToActor } from "../rest.mjs";
 import { openImproveDialog } from "../experience.mjs";
 import { openChildhoodDialog, randomTrait, randomName } from "../childhood.mjs";
@@ -21,7 +22,8 @@ export class DnkActorSheet extends ActorSheet {
       height: 840,
       submitOnChange: true,
       closeOnSubmit: false,
-      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "skills" }]
+      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "skills" }],
+      dragDrop: [{ dragSelector: ".item-row, .ability-roll, .skill-roll", dropSelector: null }]
     });
   }
 
@@ -86,8 +88,9 @@ export class DnkActorSheet extends ActorSheet {
 
     const on = (selector, fn) => html.find(selector).on("click", ev => { ev.preventDefault(); return fn(ev); });
     on(".portrait-crop-btn", () => openImageCropDialog(this.actor, "img"));
-    on(".ability-roll", ev => openRollDialog(this.actor, { ability: ev.currentTarget.dataset.ability, lockAbility: true }));
-    on(".combat-action", ev => this._run(() => this._onCombatAction(ev.currentTarget.dataset.action)));
+    on(".ability-roll", ev => openRollDialog(this.actor, { ability: ev.currentTarget.dataset.ability, lockAbility: true, fastForward: ev.shiftKey }));
+    on(".skill-roll", ev => openRollDialog(this.actor, { skill: ev.currentTarget.dataset.skill, fastForward: ev.shiftKey }));
+    on(".combat-action", ev => this._run(() => this._onCombatAction(ev.currentTarget.dataset.action, ev.shiftKey)));
     on(".claw-enter", () => this._run(() => enterClawCatfight(this.actor)));
     on(".claw-leave", () => this._run(() => leaveClawCatfight(this.actor)));
     on(".concede", () => this._run(() => concede(this.actor)));
@@ -103,7 +106,8 @@ export class DnkActorSheet extends ActorSheet {
     on(".item-delete", ev => this._getItemFromEvent(ev)?.delete());
     on(".item-roll", ev => {
       const item = this._getItemFromEvent(ev);
-      if (item?.type === "spell") return this._run(() => castSpell(this.actor, item));
+      if (item?.type === "spell") return this._run(() => castSpell(this.actor, item, { fastForward: ev.shiftKey }));
+      if (item?.type === "gear") return postItemCard(item);
     });
   }
 
@@ -131,7 +135,19 @@ export class DnkActorSheet extends ActorSheet {
     return fp.browse();
   }
 
-  async _onCombatAction(key) {
+  /** @override Drag abilities and skills (as roll macros) and items off the sheet onto the hotbar. */
+  _onDragStart(event) {
+    const el = event.currentTarget;
+    if (el.classList.contains("ability-roll") || el.classList.contains("skill-roll")) {
+      const data = { type: "DnkRoll", actorUuid: this.actor.uuid, ability: el.dataset.ability ?? null, skill: el.dataset.skill ?? null };
+      return event.dataTransfer.setData("text/plain", JSON.stringify(data));
+    }
+    const item = this.actor.items.get(el.closest(".item-row")?.dataset.itemId);
+    if (item) return event.dataTransfer.setData("text/plain", JSON.stringify(item.toDragData()));
+    return super._onDragStart(event);
+  }
+
+  async _onCombatAction(key, fastForward = false) {
     const preset = COMBAT_PRESETS[key];
     if (!preset) return;
     if (preset.auto) return helpTargets(this.actor);
@@ -141,6 +157,8 @@ export class DnkActorSheet extends ActorSheet {
       ability: preset.abilities[0],
       abilityChoices: preset.abilities,
       flavor: game.i18n.localize(preset.flavorKey),
+      skill: preset.skills?.find(k => this.actor.system.skills?.[k]?.trained) ?? null,
+      fastForward,
       isDefend: preset.isDefend,
       isHeal: preset.isHeal,
       isHinder: preset.isHinder
