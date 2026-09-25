@@ -25,6 +25,12 @@
       <span class="label">{{localize "DNK.Successes"}}</span>
       <span class="value">{{successes}}</span>
     </div>
+    {{#if helpers}}
+      <div class="result-row">
+        <span class="label">{{localize "DNK.FurrendshipFrom"}}</span>
+        <span class="value">{{helpers}}</span>
+      </div>
+    {{/if}}
     {{#if difficultyLabel}}
       <div class="result-row">
         <span class="label">{{localize "DNK.Difficulty"}}</span>
@@ -47,7 +53,14 @@
     </div>
   {{/if}}
 
+  {{#if spellEffectApplied}}
+    <div class="dnk-accident"><span>{{spellEffectApplied}}</span></div>
+  {{/if}}
+
   <div class="dnk-chat-actions">
+    {{#if spellEffect}}
+      <button class="dnk-spell-effect" type="button">{{spellEffect}}</button>
+    {{/if}}
     {{#if canSpendFurrendship}}
       <button class="dnk-spend-furrendship" type="button">{{localize "DNK.SpendFurrendship"}}</button>
     {{/if}}

@@ -700,3 +700,7 @@
 .dnk .xp-plate .improve,
 .dnk .claw-status button,
 .dnk-improve .improve-row button { width: auto; flex: 0 0 auto; white-space: nowrap; }
+
+.dnk-long-task .dnk-progress { height: 8px; border-radius: 4px; background: #efe3c4; overflow: hidden; margin: 4px 0; }
+.dnk-long-task .dnk-progress > div { height: 100%; background: #4c7a3d; }
+.dnk-long-task ol { margin: 4px 0; padding-left: 18px; font-size: 0.8rem; }

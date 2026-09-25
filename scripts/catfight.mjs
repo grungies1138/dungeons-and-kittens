@@ -35,6 +35,28 @@ export async function cedeInitiative(actor) {
   } catch (_err) { /* no permission to update the Combat - ignore */ }
 }
 
+/**
+ * Help, Hinder, and a character trait played helpfully each affect only the target's next
+ * roll (pp.24, 58). They're shown as the Advantage/Disadvantage token status, flagged as
+ * one-shot so the roll dialog removes them once used. A status someone toggles by hand (say, for
+ * a lasting condition) has no flag and stays until they remove it.
+ */
+export async function grantOneShot(actor, kind) {
+  const status = kind === "advantage" ? "dnk-advantage" : "dnk-disadvantage";
+  if (!actor.statuses?.has(status)) await actor.toggleStatusEffect(status, { active: true });
+  await actor.setFlag(SCOPE, `oneShot.${kind}`, true);
+}
+
+export async function consumeOneShots(actor) {
+  const oneShot = actor.getFlag(SCOPE, "oneShot") ?? {};
+  for (const kind of ["advantage", "disadvantage"]) {
+    if (!oneShot[kind]) continue;
+    const status = kind === "advantage" ? "dnk-advantage" : "dnk-disadvantage";
+    if (actor.statuses?.has(status)) await actor.toggleStatusEffect(status, { active: false });
+  }
+  if (oneShot.advantage || oneShot.disadvantage) await actor.unsetFlag(SCOPE, "oneShot");
+}
+
 export function isInClawCatfight(actor) {
   return !!actor?.statuses?.has(CLAW_STATUS);
 }
@@ -65,7 +87,7 @@ export async function helpTargets(actor) {
   const names = [];
   for (const token of game.user.targets) {
     if (!token.actor) continue;
-    await token.actor.toggleStatusEffect("dnk-advantage", { active: true });
+    await grantOneShot(token.actor, "advantage");
     names.push(token.actor.name);
   }
   const text = names.length
@@ -108,7 +130,7 @@ export async function useTrait(actor, mode) {
   const trait = actor.system.details?.characterTrait?.name || game.i18n.localize("DNK.CharacterTrait");
 
   if (mode === "positive") {
-    await actor.toggleStatusEffect("dnk-advantage", { active: true });
+    await grantOneShot(actor, "advantage");
     await postNotice(actor, game.i18n.format("DNK.TraitPositive", { name: actor.name, trait }));
   } else {
     const target = Array.from(game.user.targets)[0]?.actor;

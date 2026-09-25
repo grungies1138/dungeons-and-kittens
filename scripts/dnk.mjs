@@ -18,12 +18,15 @@ import { ensureGmToolsCompendium } from "./gm-tools.mjs";
 import { ensureTablesCompendium } from "./tables.mjs";
 import { ensureBestiaryCompendium } from "./bestiary.mjs";
 import { ensureSpellsCompendium } from "./spellbook.mjs";
+import { ensureRulebookCompendium } from "./rulebook.mjs";
+import { registerRulesLevel } from "./rules-level.mjs";
+import * as group from "./group.mjs";
 import * as rest from "./rest.mjs";
 import * as api from "./api.mjs";
 
 const VERSION_SETTINGS = [
   "pregenDataVersion", "guideDataVersion", "companionApiMacroVersion", "gmToolsMacroVersion",
-  "tablesDataVersion", "bestiaryDataVersion", "spellsDataVersion"
+  "tablesDataVersion", "bestiaryDataVersion", "spellsDataVersion", "rulebookDataVersion"
 ];
 
 Hooks.once("init", async function () {
@@ -33,7 +36,7 @@ Hooks.once("init", async function () {
     DnkActor, DnkItem, rollAbilityTest, openRollDialog, SKILLS, content,
     importPregens, ensurePregenCompendium, ensureGuideCompendium, ensureCompanionApiCompendium,
     ensureGmToolsCompendium, ensureTablesCompendium, ensureBestiaryCompendium, ensureSpellsCompendium,
-    rest, api
+    ensureRulebookCompendium, rest, group, api
   };
 
   CONFIG.Actor.documentClass = DnkActor;
@@ -77,6 +80,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("eq", (a, b) => a === b);
   Handlebars.registerHelper("lte", (a, b) => a <= b);
 
+  registerRulesLevel();
   for (const key of VERSION_SETTINGS) {
     game.settings.register("dungeons-and-kittens", key, { scope: "world", config: false, type: Number, default: 0 });
   }
@@ -98,6 +102,7 @@ Hooks.once("init", async function () {
 function bindChat(html) {
   activateChatListeners(html);
   activateCatfightChatListeners(html);
+  group.activateGroupChatListeners(html);
 }
 Hooks.on("renderChatMessageHTML", (message, html) => bindChat($(html)));
 Hooks.on("renderChatMessage", (message, html) => bindChat(html));
@@ -170,4 +175,5 @@ Hooks.once("ready", async function () {
   await ensureTablesCompendium();
   await ensureBestiaryCompendium();
   await ensureSpellsCompendium();
+  await ensureRulebookCompendium();
 });

@@ -22,6 +22,5 @@ export const SKILLS = [
   "seeAndSearch",
   "shakeYourBooty",
   "sweetTalk",
-  "tinkerWithBitsAndBobs",
-  "treatingBeasts"
+  "tinkerWithBitsAndBobs"
 ];

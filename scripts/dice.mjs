@@ -1,6 +1,11 @@
-import { MEOWGIC_ACCIDENTS } from "./content.mjs";
+import { MEOWGIC_ACCIDENTS, findSpell } from "./content.mjs";
+import { grantOneShot } from "./catfight.mjs";
+import { rules } from "./rules-level.mjs";
 
 const SCOPE = "dungeons-and-kittens";
+
+/** Counting successful dice, Furr-endship can't push a test beyond this many successes (p.54). */
+const MAX_FURRENDSHIP_TOTAL = 4;
 
 const DIFFICULTIES = {
   0: null,
@@ -73,6 +78,10 @@ export async function rollAbilityTest(actor, {
   isDefend = false, isHeal = false, isHinder = false, spellId = null
 } = {}) {
   const abilityValue = Number(actor.system.abilities?.[ability]?.value ?? 0);
+  /** Lighter rules (Appendix): before difficulty levels, 1 success is enough; before advantages, always 3d6. */
+  const inPlay = rules();
+  if (!inPlay.difficulty) difficulty = 1;
+  if (!inPlay.advantages) advantage = disadvantage = 0;
   const roll = new Roll(`${diceCountFor(advantage, disadvantage)}d6`);
   await roll.evaluate();
 
@@ -108,6 +117,7 @@ async function renderRollCard(actor, rollData, flavor) {
   const rerolls = rerollsOf(rollData);
   const hasFailingDie = rollData.results.some(r => r > rollData.abilityValue);
   const spell = rollData.spellId ? actor.items.get(rollData.spellId) : null;
+  const inPlay = rules();
 
   return renderTemplate("systems/dungeons-and-kittens/templates/chat/roll-card.html", {
     actorName: actor.name,
@@ -117,21 +127,24 @@ async function renderRollCard(actor, rollData, flavor) {
     results: rollData.results,
     abilityValue: rollData.abilityValue,
     successes,
-    triple: hasTriple(rollData.results),
+    triple: inPlay.triples && hasTriple(rollData.results),
     difficultyLabel: rollData.difficulty ? game.i18n.localize(DIFFICULTIES[rollData.difficulty]) : null,
     outcome,
     outcomeLabel: outcome ? game.i18n.localize(`DNK.Outcome.${outcome}`) : null,
     outcomeHint: outcome ? game.i18n.localize(`DNK.OutcomeHint.${outcome}`) : null,
     accident: rollData.accident,
-    canSpendFurrendship: (actor.system.resources?.furrendship?.value ?? 0) > 0 && rollData.furrendshipSpent < 4,
-    canRerollItem: hasFailingDie && rerolls.item < purreciousCount(actor),
-    canRerollCattribute: hasFailingDie && rerolls.cattribute < 1 && hasCattributeSource(actor),
-    canRerollIdea: hasFailingDie && game.user.isGM,
+    spellEffectApplied: rollData.spellEffectApplied ?? null,
+    helpers: rollData.helpers?.length ? rollData.helpers.join(", ") : null,
+    canSpendFurrendship: inPlay.furrendship && actor.type === "kitten" && successes < MAX_FURRENDSHIP_TOTAL,
+    canRerollItem: inPlay.rerolls && hasFailingDie && rerolls.item < purreciousCount(actor),
+    canRerollCattribute: inPlay.rerolls && hasFailingDie && rerolls.cattribute < 1 && hasCattributeSource(actor),
+    canRerollIdea: inPlay.rerolls && hasFailingDie && game.user.isGM,
     cattributeLabel: actor.type === "kitten" ? game.i18n.localize("DNK.RerollCattribute") : game.i18n.localize("DNK.RerollDescription"),
     canSetBlock: rollData.isDefend && successes > 0,
     canHealTarget: rollData.isHeal && successes > 0,
     canApplyHinder: rollData.isHinder && successes > 0,
     canForceSpell: !!spell && outcome !== "success" && !rollData.accident,
+    spellEffect: spellEffectFor(spell, rollData),
     isGM: game.user.isGM
   });
 }
@@ -162,13 +175,14 @@ export function activateChatListeners(html) {
   if (el?.dataset) el.dataset.dnkListenersBound = "1";
 
   html.on("click", ".dnk-dice-row .die", onSelectDie);
-  html.on("click", ".dnk-spend-furrendship", ev => runAction(ev, spendFurrendshipOnMessage));
+  html.on("click", ".dnk-spend-furrendship", ev => runAction(ev, id => spendFurrendshipOnMessage(id)));
   html.on("click", ".dnk-reroll", ev => runAction(ev, (id, btn) => rerollOnMessage(id, btn.dataset.source, selectedDieIndex(btn))));
   html.on("click", ".dnk-apply-damage", onApplyDamage);
   html.on("click", ".dnk-set-block", ev => runAction(ev, setBlockOnMessage));
   html.on("click", ".dnk-heal-target", ev => runAction(ev, healTargetsFromMessage));
   html.on("click", ".dnk-apply-hinder", ev => runAction(ev, applyHinderFromMessage));
   html.on("click", ".dnk-force-spell", ev => runAction(ev, forceSpellOnMessage));
+  html.on("click", ".dnk-spell-effect", ev => runAction(ev, applySpellEffectFromMessage));
 }
 
 /** Wraps a chat-card button: resolve its message id, run the shared action, surface errors. */
@@ -198,14 +212,36 @@ function selectedDieIndex(button) {
   return selected ? Number(selected.dataset.index) : null;
 }
 
-/** Spend 1 Furr-endship on a roll for an automatic extra success, max 4 per test (p.54). */
-export async function spendFurrendshipOnMessage(messageId) {
-  const { message, rollData, actor } = loadMessage(messageId);
-  if ((actor.system.resources?.furrendship?.value ?? 0) <= 0) throw new Error(game.i18n.localize("DNK.NoFurrendship"));
-  if (rollData.furrendshipSpent >= 4) throw new Error(game.i18n.localize("DNK.MaxFurrendshipReached"));
+/**
+ * Who pays for a Furr-endship spend: a Kitten can spend on their own roll or to help a
+ * companion (p.54). The clicking user's own character pays when it isn't the roller; otherwise
+ * (the roller's own player, or the GM) the roller pays.
+ */
+function resolveSpender(roller, spenderId) {
+  if (spenderId) return game.actors.get(spenderId) ?? null;
+  const own = game.user.character;
+  if (own && own.type === "kitten" && own.id !== roller.id && own.isOwner) return own;
+  return roller;
+}
 
-  await actor.adjustResource("furrendship", -1);
+/**
+ * Spend 1 Furr-endship on a Kitten's roll for an automatic extra success (p.54). Counting the
+ * successful dice, spending can't take a test past 4 successes. Furr-endship belongs to
+ * Kittens, so Extras' rolls can't take it.
+ */
+export async function spendFurrendshipOnMessage(messageId, spenderId = null) {
+  const { message, rollData, actor } = loadMessage(messageId);
+  if (actor.type !== "kitten") throw new Error(game.i18n.localize("DNK.KittensOnlyFurrendship"));
+  const spender = resolveSpender(actor, spenderId);
+  if (!spender || spender.type !== "kitten") throw new Error(game.i18n.localize("DNK.KittensOnlyFurrendship"));
+  if ((spender.system.resources?.furrendship?.value ?? 0) <= 0) throw new Error(game.i18n.format("DNK.NoFurrendshipFor", { name: spender.name }));
+  if (totalSuccesses(rollData) >= MAX_FURRENDSHIP_TOTAL) throw new Error(game.i18n.localize("DNK.MaxFurrendshipReached"));
+
+  await spender.adjustResource("furrendship", -1);
   rollData.furrendshipSpent += 1;
+  if (spender.id !== actor.id) {
+    rollData.helpers = [...(rollData.helpers ?? []), spender.name];
+  }
   await refreshChatCard(message, actor, rollData);
   return rollData;
 }
@@ -261,6 +297,79 @@ export async function forceSpellOnMessage(messageId) {
   return rollData.accident;
 }
 
+/* -------------------------------------------- */
+/*  Spell effects (pp.39-41)                    */
+/* -------------------------------------------- */
+
+/** Spells whose effect is a game-state change the chat card can apply. */
+const SPELL_EFFECTS = {
+  "First Aid": { labelKey: "DNK.SpellEffect.FirstAid", target: true },
+  "Care": { labelKey: "DNK.SpellEffect.Care" },
+  "Heart Charm": { labelKey: "DNK.SpellEffect.HeartCharm", target: true },
+  "Long Night": { labelKey: "DNK.SpellEffect.LongNight" }
+};
+
+function spellWorked(rollData) {
+  if (rollData.accident) return ["works", "loseHeart"].includes(rollData.accident.effect);
+  return outcomeOf(rollData) === "success";
+}
+
+function spellEffectFor(spell, rollData) {
+  if (!spell || rollData.spellEffectApplied || !spellWorked(rollData)) return null;
+  const official = findSpell(spell.name)?.name;
+  const effect = SPELL_EFFECTS[official];
+  return effect ? game.i18n.localize(effect.labelKey) : null;
+}
+
+/** The friendly tokens on the caster's scene, other than the caster ("comrades present"). */
+function comradesPresent(actor) {
+  const own = actor.getActiveTokens()[0];
+  const disposition = own?.document.disposition ?? CONST.TOKEN_DISPOSITIONS.FRIENDLY;
+  return (canvas?.tokens?.placeables ?? [])
+    .filter(t => t.actor && t.actor.id !== actor.id && t.document.disposition === disposition)
+    .map(t => t.actor);
+}
+
+/** Apply a successful spell's effect: First Aid, Care, Heart Charm, or Long Night. */
+export async function applySpellEffectFromMessage(messageId) {
+  const { message, rollData, actor } = loadMessage(messageId);
+  const spell = rollData.spellId ? actor.items.get(rollData.spellId) : null;
+  if (!spell || rollData.spellEffectApplied || !spellWorked(rollData)) throw new Error(game.i18n.localize("DNK.InvalidRollMessage"));
+  const official = findSpell(spell.name)?.name;
+  let summary;
+
+  if (official === "First Aid") {
+    const target = Array.from(game.user.targets)[0]?.actor;
+    if (!target) throw new Error(game.i18n.localize("DNK.NoTarget"));
+    await target.adjustResource("heart", 1);
+    summary = game.i18n.format("DNK.SpellEffectDone.FirstAid", { target: target.name });
+  } else if (official === "Care") {
+    if ((actor.system.resources?.furrendship?.value ?? 0) < 1) throw new Error(game.i18n.format("DNK.NoFurrendshipFor", { name: actor.name }));
+    const comrades = comradesPresent(actor);
+    if (!comrades.length) throw new Error(game.i18n.localize("DNK.NoComradesPresent"));
+    await actor.adjustResource("furrendship", -1);
+    for (const comrade of comrades) await comrade.adjustResource("heart", 1);
+    summary = game.i18n.format("DNK.SpellEffectDone.Care", { names: comrades.map(c => c.name).join(", ") });
+  } else if (official === "Heart Charm") {
+    const wearer = Array.from(game.user.targets)[0]?.actor ?? actor;
+    const heart = wearer.system.resources.heart;
+    await wearer.update({ "system.resources.heart.bonus": heart.bonus + 1, "system.resources.heart.value": heart.value + 1 });
+    summary = game.i18n.format("DNK.SpellEffectDone.HeartCharm", { target: wearer.name });
+  } else if (official === "Long Night") {
+    for (const item of actor.items.filter(i => i.type === "spell" && i.getFlag(SCOPE, "usedToday"))) {
+      await item.unsetFlag(SCOPE, "usedToday");
+    }
+    summary = game.i18n.format("DNK.SpellEffectDone.LongNight", { name: actor.name });
+  } else {
+    throw new Error(game.i18n.localize("DNK.InvalidRollMessage"));
+  }
+
+  rollData.spellEffectApplied = summary;
+  await refreshChatCard(message, actor, rollData);
+  ui.notifications.info(summary);
+  return summary;
+}
+
 /** Tokens targeted by the current user, or a localized error if there are none. */
 function requireTargets() {
   const targets = Array.from(game.user.targets);
@@ -274,7 +383,7 @@ export async function applyHinderFromMessage(messageId) {
   const names = [];
   for (const token of requireTargets()) {
     if (!token.actor) continue;
-    await token.actor.toggleStatusEffect("dnk-disadvantage", { active: true });
+    await grantOneShot(token.actor, "disadvantage");
     names.push(token.actor.name);
   }
   ui.notifications.info(game.i18n.format("DNK.HinderApplied", { names: names.join(", ") }));

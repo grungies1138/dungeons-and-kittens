@@ -1,9 +1,10 @@
 import { SKILLS } from "./skills.mjs";
 import { SPELLS, findSpell, spellItemData } from "./content.mjs";
 import { ensureWorldPack } from "./packs.mjs";
+import { EXTRA_TEXT } from "./rulebook-text.mjs";
 
 /** Bump whenever BESTIARY_EXTRAS changes so existing worlds get the refreshed data. */
-export const BESTIARY_DATA_VERSION = 2;
+export const BESTIARY_DATA_VERSION = 3;
 
 /**
  * The Core Rulebook's named Extras. Abilities, skills, spells, and Purr-ecious items are the
@@ -98,7 +99,11 @@ function skillKeyIndex() {
 function buildExtras() {
   const skillKeys = skillKeyIndex();
   const norm = s => s.toLowerCase().replace(/&/g, "and").replace(/[^a-z]/g, "");
-  return EXTRAS.map(([name, role, where, [strong, smart, cute], skills, spells, items]) => {
+  return EXTRAS.map(([name, summary, where, [strong, smart, cute], skills, spells, items]) => {
+    /** The book's own description: its opening sentence is the re-roll "description" (p.65), the rest goes in the notes. */
+    const official = EXTRA_TEXT[name] ?? summary;
+    const firstSentence = official.match(/^.+?[.!?](?=\s|$)/)?.[0] ?? official;
+    const role = official.length <= 160 ? official : firstSentence;
     const spellItems = spells[0] === "*"
       ? SPELLS.map(spellItemData)
       : spells.map(findSpell).filter(Boolean).map(spellItemData);
@@ -110,7 +115,9 @@ function buildExtras() {
       system: {
         abilities: { strong: { value: strong }, smart: { value: smart }, cute: { value: cute } },
         resources: { heart: { value: heart, max: heart }, furrendship: { value: cute, max: cute } },
-        details: { role, notes: `Source: Dungeons & Kittens Core Rulebook - ${where}.` },
+        details: { role, notes: `${official}
+
+Source: Dungeons & Kittens Core Rulebook - ${where}.` },
         skills: Object.fromEntries(skills.map(s => skillKeys.get(norm(s))).filter(Boolean).map(key => [key, { trained: true }]))
       },
       items: [
