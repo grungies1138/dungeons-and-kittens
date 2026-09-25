@@ -4,7 +4,7 @@ import { ensureWorldPack } from "./packs.mjs";
 import { EXTRA_TEXT } from "./rulebook-text.mjs";
 
 /** Bump whenever BESTIARY_EXTRAS changes so existing worlds get the refreshed data. */
-export const BESTIARY_DATA_VERSION = 3;
+export const BESTIARY_DATA_VERSION = 4;
 
 /**
  * The Core Rulebook's named Extras. Abilities, skills, spells, and Purr-ecious items are the
@@ -96,6 +96,14 @@ function skillKeyIndex() {
   return new Map(SKILLS.map(key => [norm(game.i18n.localize(`DNK.Skill.${key}`)), key]));
 }
 
+/** Portraits cropped from the Core Rulebook's illustrations (assets/bestiary/<slug>.jpg). */
+const PORTRAITS = new Set(["barnaby", "baron-embergrunt", "beep-and-squeek", "bojosar", "bruno", "brutus", "buddy", "captain-blueclaw", "captain-buttercup", "chuck-the-catnut", "count-catula", "crowtie", "crusty", "dark", "doctor-mojo", "dualeaper", "edmund", "galiena", "greaser", "grenada", "ignatius", "iron-loin", "jazzy-the-blacksmith", "lamia-the-librarian", "licorishi", "luna-the-guardian", "magnificus-the-meowge", "matey-mousetail", "mimi-the-meowmy", "mr-mooner", "mrs-lewcy", "old-man-chompy", "ptolomeow", "rainbow-tumble-tribe-guard", "regina-roundpaw", "reverend-mother-barbiecute", "rider-on-the-storm", "robber-toad", "sadie-roundpaw", "suzanne-the-witch-viper", "taro", "the-big-bare-butt", "tina-the-traveller", "vizir-chilli", "wellington", "wolfrik-s-ruffian", "wolfrik"]);
+const slugify = name => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+function portraitFor(name) {
+  const slug = slugify(name);
+  return PORTRAITS.has(slug) ? `systems/dungeons-and-kittens/assets/bestiary/${slug}.jpg` : "icons/svg/mystery-man.svg";
+}
+
 function buildExtras() {
   const skillKeys = skillKeyIndex();
   const norm = s => s.toLowerCase().replace(/&/g, "and").replace(/[^a-z]/g, "");
@@ -108,10 +116,12 @@ function buildExtras() {
       ? SPELLS.map(spellItemData)
       : spells.map(findSpell).filter(Boolean).map(spellItemData);
     const heart = strong + smart;
+    const img = portraitFor(name);
     return {
       name,
       type: "extra",
-      img: "icons/svg/mystery-man.svg",
+      img,
+      prototypeToken: { texture: { src: img } },
       system: {
         abilities: { strong: { value: strong }, smart: { value: smart }, cute: { value: cute } },
         resources: { heart: { value: heart, max: heart }, furrendship: { value: cute, max: cute } },
