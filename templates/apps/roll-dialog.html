@@ -11,6 +11,18 @@
   {{else}}
     <p class="hint">{{fixedAbility}}</p>
   {{/if}}
+  {{#if showSkills}}
+    <div class="form-group">
+      <label>{{localize "DNK.SkillUsed"}}</label>
+      <select name="skill">
+        <option value="">{{localize "DNK.NoSkill"}}</option>
+        {{#each skills}}
+          <option value="{{this.key}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+        {{/each}}
+      </select>
+    </div>
+    <p class="hint">{{localize "DNK.SkillUsedHint"}}</p>
+  {{/if}}
   {{#if showAdvantages}}
     <div class="form-group">
       <label>{{localize "DNK.Advantage"}}</label>

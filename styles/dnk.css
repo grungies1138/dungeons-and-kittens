@@ -704,3 +704,23 @@
 .dnk-long-task .dnk-progress { height: 8px; border-radius: 4px; background: #efe3c4; overflow: hidden; margin: 4px 0; }
 .dnk-long-task .dnk-progress > div { height: 100%; background: #4c7a3d; }
 .dnk-long-task ol { margin: 4px 0; padding-left: 18px; font-size: 0.8rem; }
+
+/* Skill roll links, test links, item cards, Party Overview */
+.dnk .skill-row { display: flex; align-items: center; gap: 4px; }
+.dnk .skill-row .skill-roll { margin-left: auto; opacity: 0.55; }
+.dnk .skill-row .skill-roll:hover { opacity: 1; }
+a.dnk-test-link { display: inline-block; padding: 0 4px; border: 1px solid #b08a5a; border-radius: 3px; background: #f3e6c7; color: #5c3a22; white-space: nowrap; }
+a.dnk-test-link:hover { background: #ead3a2; text-shadow: none; }
+.dnk-item-card .card-header { display: flex; align-items: center; gap: 6px; }
+.dnk-item-card .card-header img { border: none; }
+.party-overview .party-list { list-style: none; margin: 0; padding: 0; }
+.party-overview .party-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px solid rgba(92, 58, 34, 0.25); }
+.party-overview .party-portrait { width: 40px; height: 40px; object-fit: cover; border: 1px solid #5c3a22; border-radius: 4px; cursor: pointer; }
+.party-overview .party-main { flex: 1; min-width: 0; }
+.party-overview .party-name { font-weight: bold; }
+.party-overview .party-statuses img { width: 16px; height: 16px; border: none; }
+.party-overview .party-resource, .party-overview .party-xp { display: flex; align-items: center; gap: 3px; white-space: nowrap; }
+.party-overview .party-resource .fa-heart { color: #b33; }
+.party-overview .party-actions { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+.party-overview .party-actions button { flex: 1 1 30%; }
+.dnk-party-button { flex: 1 1 100%; }

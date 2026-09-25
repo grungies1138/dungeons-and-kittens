@@ -3,6 +3,7 @@
     <label class="skill-row" data-tooltip="{{this.description}}">
       <input type="checkbox" name="system.skills.{{this.key}}.trained" {{#if this.trained}}checked{{/if}}/>
       <span>{{this.label}}</span>
+      <a class="skill-roll" data-skill="{{this.key}}" draggable="true" data-tooltip="{{localize 'DNK.RollWithSkill'}}"><i class="fas fa-dice-d6"></i></a>
     </label>
   {{/each}}
 </div>
@@ -35,6 +36,7 @@
         <span class="item-name" data-tooltip="{{this.system.description}}">{{this.name}}{{#if this.system.purrecious}} <i class="fas fa-paw" title="{{localize 'DNK.Purrecious'}}"></i>{{/if}}</span>
         <span class="item-detail">x{{this.system.quantity}}</span>
         <span class="item-controls">
+          <a class="item-roll" title="{{localize 'DNK.ShowInChat'}}"><i class="fas fa-comment"></i></a>
           <a class="item-edit" title="{{localize 'DNK.Edit'}}"><i class="fas fa-edit"></i></a>
           <a class="item-delete" title="{{localize 'DNK.Delete'}}"><i class="fas fa-trash"></i></a>
         </span>

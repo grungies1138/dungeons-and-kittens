@@ -23,6 +23,7 @@ import { registerRulesLevel } from "./rules-level.mjs";
 import * as group from "./group.mjs";
 import * as rest from "./rest.mjs";
 import * as api from "./api.mjs";
+import { registerAutomation, requestTest, useItem, rollFor, postItemCard, PartyOverview } from "./automation.mjs";
 
 const VERSION_SETTINGS = [
   "pregenDataVersion", "guideDataVersion", "companionApiMacroVersion", "gmToolsMacroVersion",
@@ -36,7 +37,8 @@ Hooks.once("init", async function () {
     DnkActor, DnkItem, rollAbilityTest, openRollDialog, SKILLS, content,
     importPregens, ensurePregenCompendium, ensureGuideCompendium, ensureCompanionApiCompendium,
     ensureGmToolsCompendium, ensureTablesCompendium, ensureBestiaryCompendium, ensureSpellsCompendium,
-    ensureRulebookCompendium, rest, group, api
+    ensureRulebookCompendium, rest, group, api,
+    requestTest, useItem, rollFor, postItemCard, partyOverview: () => PartyOverview.show()
   };
 
   CONFIG.Actor.documentClass = DnkActor;
@@ -79,6 +81,9 @@ Hooks.once("init", async function () {
 
   Handlebars.registerHelper("eq", (a, b) => a === b);
   Handlebars.registerHelper("lte", (a, b) => a <= b);
+  Handlebars.registerHelper("or", (...args) => args.slice(0, -1).some(Boolean));
+
+  registerAutomation();
 
   registerRulesLevel();
   for (const key of VERSION_SETTINGS) {
@@ -95,7 +100,8 @@ Hooks.once("init", async function () {
     "systems/dungeons-and-kittens/templates/apps/roll-dialog.html",
     "systems/dungeons-and-kittens/templates/apps/image-crop.html",
     "systems/dungeons-and-kittens/templates/apps/improve-dialog.html",
-    "systems/dungeons-and-kittens/templates/apps/childhood-dialog.html"
+    "systems/dungeons-and-kittens/templates/apps/childhood-dialog.html",
+    "systems/dungeons-and-kittens/templates/apps/party-overview.html"
   ]);
 });
 

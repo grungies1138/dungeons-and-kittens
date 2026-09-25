@@ -2,6 +2,7 @@ import { rollAbilityTest } from "../dice.mjs";
 import { ABILITY_KEYS } from "../content.mjs";
 import { consumeOneShots } from "../catfight.mjs";
 import { rules } from "../rules-level.mjs";
+import { SKILLS } from "../skills.mjs";
 
 /** Statuses that impose a disadvantage on every roll: the Disadvantage toggle and Claw injuries (p.60). */
 const DISADVANTAGE_STATUSES = ["dnk-disadvantage", "dnk-injured", "dnk-injured-major"];
@@ -18,6 +19,8 @@ function abilityLabel(key) {
  * @param {object} presets  rollAbilityTest options, plus:
  * @param {string[]} [presets.abilityChoices]  Abilities offered in the picker (defaults to all three).
  * @param {boolean}  [presets.lockAbility]     Hide the picker (e.g. a spell's ability is fixed by its path).
+ * @param {string}   [presets.skill]           Pre-selected skill (adds 1 advantage if the actor has it).
+ * @param {boolean}  [presets.fastForward]     Skip the dialog and roll with the defaults (shift-click).
  */
 export async function openRollDialog(actor, presets = {}) {
   const ability = presets.ability ?? "strong";
@@ -32,6 +35,28 @@ export async function openRollDialog(actor, presets = {}) {
   const statusAdvantage = actor.statuses?.has("dnk-advantage") ? 1 : 0;
   const statusDisadvantage = DISADVANTAGE_STATUSES.some(s => actor.statuses?.has(s)) ? 1 : 0;
 
+  const roll = async ({ ability: chosen = ability, skill = presets.skill ?? null, advantage, disadvantage, difficulty }) => {
+    const message = await rollAbilityTest(actor, {
+      ability: chosen, flavor, advantage, disadvantage, difficulty, skill,
+      isDefend: presets.isDefend, isHeal: presets.isHeal, isHinder: presets.isHinder,
+      spellId: presets.spellId ?? null
+    });
+    await consumeOneShots(actor);
+    return message;
+  };
+
+  if (presets.fastForward) {
+    return roll({
+      advantage: presets.advantage ?? statusAdvantage,
+      disadvantage: presets.disadvantage ?? statusDisadvantage,
+      difficulty: presets.difficulty ?? 0
+    });
+  }
+
+  /** The actor's own skills; picking one adds its advantage (p.19). */
+  const trained = SKILLS.filter(k => actor.system.skills?.[k]?.trained)
+    .map(key => ({ key, label: game.i18n.localize(`DNK.Skill.${key}`), selected: key === presets.skill }));
+
   const content = await renderTemplate("systems/dungeons-and-kittens/templates/apps/roll-dialog.html", {
     flavor,
     abilities: choices.map(key => ({
@@ -43,6 +68,8 @@ export async function openRollDialog(actor, presets = {}) {
     disadvantage: presets.disadvantage ?? statusDisadvantage,
     difficulty: presets.difficulty ?? 0,
     showDifficulty: rules().difficulty,
+    skills: trained,
+    showSkills: rules().advantages && trained.length > 0,
     showAdvantages: rules().advantages
   });
 
@@ -65,19 +92,13 @@ export async function openRollDialog(actor, presets = {}) {
           callback: async html => {
             resolved = true;
             const form = html[0].querySelector("form");
-            const message = await rollAbilityTest(actor, {
+            resolve(await roll({
               ability: form.ability?.value || ability,
-              flavor,
+              skill: form.skill?.value || null,
               advantage: Number(form.advantage?.value) || 0,
               disadvantage: Number(form.disadvantage?.value) || 0,
-              difficulty: Number(form.difficulty?.value) || 0,
-              isDefend: presets.isDefend,
-              isHeal: presets.isHeal,
-              isHinder: presets.isHinder,
-              spellId: presets.spellId ?? null
-            });
-            await consumeOneShots(actor);
-            resolve(message);
+              difficulty: Number(form.difficulty?.value) || 0
+            }));
           }
         }
       },

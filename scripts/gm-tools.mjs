@@ -5,7 +5,7 @@
  */
 
 /** Bump this whenever GM_MACROS changes so existing worlds get the refreshed macros. */
-export const GM_TOOLS_DATA_VERSION = 3;
+export const GM_TOOLS_DATA_VERSION = 4;
 
 const GM_MACROS = [
   {
@@ -52,6 +52,16 @@ const GM_MACROS = [
     name: "DNK: Long Task",
     img: "icons/svg/hourglass.svg",
     command: `return await game.dnk.group.startLongTask();`
+  },
+  {
+    name: "DNK: Request a Test",
+    img: "icons/svg/sound.svg",
+    command: `return await game.dnk.requestTest();`
+  },
+  {
+    name: "DNK: Party Overview",
+    img: "icons/svg/village.svg",
+    command: `return game.dnk.partyOverview();`
   }
 ];
 

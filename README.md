@@ -121,8 +121,21 @@ Each acts on the selected tokens' actors, or every Kitten in the world if nothin
 | DNK: Group Test | Everyone rolls; the group succeeds if most do. |
 | DNK: Opposed Test | Selected token vs targeted token; most successes wins. |
 | DNK: Long Task | A chat card that tallies successes toward a target over repeated rolls. |
+| DNK: Request a Test | Posts a test (ability, difficulty, skill) to chat for each player to roll with their own Kitten. |
+| DNK: Party Overview | Opens the Party Overview (also a button at the top of the Actors sidebar). |
 
 Kittens also have their own **Night's Rest** button in the sheet's title bar.
+
+## Table automation
+
+- **Skills in rolls:** each skill on the sheet has a dice button, and the roll dialog has a Skill picker; a skill the character has adds its 1 advantage (p.19) and is named on the chat card. Catfight actions pre-select the skill the quick reference pairs with them (Scratch for Claw attacks, Keep Calm & Carry On / Shake Your Booty for Defend, and so on).
+- **Shift-click** any roll button (abilities, skills, spells, Catfight actions, macros, test links) to skip the dialog.
+- **Test links:** write `@Test[smart difficulty=2 skill=seeAndSearch]{Spot the trap}` in any journal, item, or chat message to make a clickable test. It rolls for the selected tokens, or your assigned character.
+- **Hotbar macros:** drag an ability, a skill, a spell, or a backpack item from the sheet onto the hotbar.
+- **Item cards:** the chat button on backpack items shows the item and its description in chat.
+- **Chat commands (GM):** `/award 2` gives 2 XP to the selected Kittens (or every player's Kitten); `/award 1 Bibi, Misty` names them. `/rest lunch` and `/rest night` apply a party rest.
+- **Party Overview:** every Kitten's Heart, Furr-endship, XP, and conditions at a glance, with +/- buttons and party rest, Furr-endship, XP, and request-a-test buttons for the GM. It updates live.
+- **Token defaults:** new Kittens get a linked, friendly token with vision and Heart / Furr-endship bars; Extras show their Heart bar.
 
 ## Companion API (for external tools, e.g. a mobile character-sheet app)
 
