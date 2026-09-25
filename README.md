@@ -95,7 +95,7 @@ updated content. Look under "World" in the Compendium sidebar.
 | Pregenerated Kittens | Sparkle, Bobbin, Camilla, Dart, and Cheesy (Quickstart) and Bibi, Grizzle, Caramel, Misty, and Blunk (Core Rulebook). |
 | Player's Guide | Kitten creation (with all Childhoods and spells), rules and sheet hints, skill reference. |
 | Spells | All 36 spells, ready to drag onto a sheet. |
-| Bestiary | The Core Rulebook's named Extras (about 70), with skills, spells, and items. |
+| Bestiary | The Core Rulebook's named Extras (about 70), with skills, spells, and items, and portraits and tokens taken from the book's illustrations (47 of them). |
 | Tables | Character Trait, Childhood (weighted like the book), Kitten Name, Meowgic Accident, Claw Injury, the setting tables (Cat Tree City, the Smoking Cat, Downtown), the Crimsonfief dungeon generator, and the full Selene's Nightmare generator. |
 | GM Tools | Party-wide macros (below). |
 | Companion API | Macros for external tools (below). |
