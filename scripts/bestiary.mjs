@@ -2,9 +2,10 @@ import { SKILLS } from "./skills.mjs";
 import { SPELLS, findSpell, spellItemData } from "./content.mjs";
 import { ensureWorldPack } from "./packs.mjs";
 import { EXTRA_TEXT } from "./rulebook-text.mjs";
+import { gearIcon } from "./icons.mjs";
 
 /** Bump whenever BESTIARY_EXTRAS changes so existing worlds get the refreshed data. */
-export const BESTIARY_DATA_VERSION = 5;
+export const BESTIARY_DATA_VERSION = 6;
 
 /**
  * The Core Rulebook's named Extras. Abilities, skills, spells, and Purr-ecious items are the
@@ -149,7 +150,7 @@ Source: Dungeons & Kittens Core Rulebook - ${where}.` },
       },
       items: [
         ...spellItems,
-        ...items.map(item => ({ name: item, type: "gear", img: "icons/svg/chest.svg", system: { purrecious: true } }))
+        ...items.map(item => ({ name: item, type: "gear", img: gearIcon(item), system: { purrecious: true } }))
       ]
     };
   });

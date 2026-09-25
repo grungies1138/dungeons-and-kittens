@@ -5,6 +5,7 @@
  */
 
 import { SPELL_TEXT, CHILDHOOD_TEXT } from "./rulebook-text.mjs";
+import { spellIcon } from "./icons.mjs";
 
 export const ABILITY_KEYS = ["strong", "smart", "cute"];
 
@@ -96,7 +97,7 @@ export function spellItemData(spell) {
   return {
     name: spell.name,
     type: "spell",
-    img: "icons/svg/book.svg",
+    img: spellIcon(spell.name),
     system: {
       path: spell.path,
       ability: SPELL_PATHS[spell.path].ability,

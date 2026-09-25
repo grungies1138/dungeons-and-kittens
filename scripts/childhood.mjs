@@ -1,3 +1,4 @@
+import { gearIcon } from "./icons.mjs";
 import { CHILDHOODS, CHILDHOOD_CATEGORIES, CHARACTER_TRAITS, KITTEN_NAMES } from "./content.mjs";
 
 /**
@@ -21,7 +22,7 @@ export async function applyChildhood(actor, name) {
   await actor.createEmbeddedDocuments("Item", childhood.items.map(item => ({
     name: item,
     type: "gear",
-    img: "icons/svg/chest.svg",
+    img: gearIcon(item),
     system: { description: "", quantity: 1, purrecious: true }
   })));
 

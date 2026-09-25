@@ -1,3 +1,4 @@
+import { spellIcon, gearIcon } from "./icons.mjs";
 import { findSpell, SPELL_PATHS, CHILDHOODS } from "./content.mjs";
 
 /**
@@ -9,7 +10,7 @@ import { findSpell, SPELL_PATHS, CHILDHOODS } from "./content.mjs";
  */
 
 /** Bump this whenever PREGEN_KITTENS changes so existing worlds get the refreshed data. */
-export const PREGEN_DATA_VERSION = 4;
+export const PREGEN_DATA_VERSION = 5;
 
 /** The everyday supplies every exile carries (p.23). */
 const COMMON_GEAR_DESCRIPTION =
@@ -56,7 +57,7 @@ function kitten({ name, childhood, trait, cattributeName, cattributeDescription,
       ...spells.map(s => ({
         name: s.name,
         type: "spell",
-        img: "icons/svg/book.svg",
+        img: spellIcon(s.name),
         system: {
           path: findSpell(s.name)?.path ?? "",
           ability: SPELL_PATHS[findSpell(s.name)?.path]?.ability ?? s.ability,
@@ -67,13 +68,13 @@ function kitten({ name, childhood, trait, cattributeName, cattributeDescription,
       ...gear.map(g => ({
         name: g.name,
         type: "gear",
-        img: "icons/svg/chest.svg",
+        img: gearIcon(g.name),
         system: { description: g.description ?? "", quantity: 1, purrecious: true }
       })),
       {
         name: "Common Supplies",
         type: "gear",
-        img: "icons/svg/chest.svg",
+        img: "icons/containers/bags/pack-leather-white-tan.webp",
         system: { description: COMMON_GEAR_DESCRIPTION, quantity: 1, purrecious: false }
       }
     ]
